@@ -1,0 +1,6 @@
+{
+  "extends": ["tyom/base"],
+  "rules": {
+    "no-console": "off"
+  }
+}
