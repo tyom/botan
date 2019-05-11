@@ -164,4 +164,17 @@ module.exports = async controller => {
     // Clear cache
     overlayTextCache[message.user] = '';
   });
+
+  controller.on('message_action', async (bot, action) => {
+    const { presetUrl, alias } = qs.parse(action.callback_id);
+    const text = action.message.text;
+
+    await bot.replyPublic(
+      action,
+      createMessageWithImage(
+        text,
+        getMemifyUrl(alias, presetUrl, text)
+      )
+    );
+  });
 };
