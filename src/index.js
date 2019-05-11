@@ -34,6 +34,10 @@ controller.ready(() => {
 });
 
 if (process.env.DEBUG) {
+  controller.middleware.ingest.use((bot, message, next) => {
+    console.log('INGEST: ', message);
+    next();
+  });
   controller.middleware.send.use((bot, message, next) => {
     console.log('SENT: ', message);
     next();
