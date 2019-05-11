@@ -1,5 +1,6 @@
 require('dotenv').config();
 const fetch = require('node-fetch');
+const qs = require('querystring');
 const btoa = require('btoa');
 const {
   divider,
@@ -66,34 +67,69 @@ async function getPresetData(url) {
 }
 
 function getMemifyUrl(alias, presetUrl, text) {
-  const encodedPath = btoa(`${alias}?presetUrl=${presetUrl}&text=${text}`);
-  return process.env.MEMIFY_ENDPOINT + encodedPath;
+  const path = `${alias}?presetUrl=${presetUrl}&text=${text}`;
+  const processedPath = process.env.ENCODE_URL ? btoa(path) : path;
+  return process.env.MEMIFY_ENDPOINT + processedPath;
 }
 
 module.exports = async controller => {
   let memifyPreset = await getPresetData(process.env.MEMIFY_PRESET_URL);
 
   const overlayTextCache = {};
+  let requestQuery = {};
+
+  controller.http.on('request', req => {
+    requestQuery = req.query;
+  });
+
+  // Intercept other slash commands and map them to /memify
+  controller.middleware.ingest.use((bot, message, next) => {
+    if (!message.command || message.command === slashCommandName) {
+      return next();
+    }
+    const queryString = qs.stringify(requestQuery);
+    message.text = `${message.command.replace('/', ':')} ${
+      message.text
+    } {{${queryString}}}`;
+    message.command = slashCommandName;
+    next();
+  });
 
   controller.on('slash_command', async (bot, message) => {
     if (message.command !== slashCommandName) {
       return;
     }
-    const presetAndText = message.text.match(/^\s*?(:[\w-]+)?\s+?(.*)/) || [];
-    const [, preset, overlayText] = presetAndText;
-    if (preset && overlayText) {
+
+    // Slash commands with inline options come in format
+    // /command text to pass to renderer {{inline=options&custom=settings}}
+    const [, preset = '', text] = message.text.match(/^\s*(:[\w-]+)?\s*(.*)/) || [];
+    const [, requestOptionsString] = text.match(/{{(.*)}}/) || [];
+    const requestOptions = qs.parse(requestOptionsString);
+
+    const options = {
+      presetUrl: process.env.MEMIFY_PRESET_URL,
+      preset: preset.replace(/^:/, ''),
+      text: text.replace(/{{.*}}/, ''),
+      ...requestOptions,
+    };
+
+    if (options.preset && options.text) {
       await bot.reply(
         message,
-        getMemifyUrl(preset, process.env.MEMIFY_PRESET_URL, overlayText)
+        getMemifyUrl(options.preset, options.presetUrl, options.text)
       );
       return;
     }
     if (!message.text) {
       await bot.replyEphemeral(
         message,
-        `Add some text to overlay on the image. You’ll pick the image later.\n\`${slashCommandName} Text to overlay\``
+        `Add some text to overlay on the image. You’ll pick the image later.\n\`${
+          message.command
+        } Text to overlay\``
       );
+      return;
     }
+
     overlayTextCache[message.user] = message.text;
     await bot.replyEphemeral(
       message,

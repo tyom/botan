@@ -34,7 +34,7 @@ controller.ready(() => {
 });
 
 if (process.env.DEBUG) {
-  controller.middleware.send.use(function(bot, message, next) {
+  controller.middleware.send.use((bot, message, next) => {
     console.log('SENT: ', message);
     next();
   });
