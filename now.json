@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "name": "botan",
+  "alias": "botan.tyom.dev",
+  "builds": [
+    {
+      "src": "src/index.js",
+      "use": "@now/node"
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/src/index.js" }
+  ]
+}
