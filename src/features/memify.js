@@ -10,17 +10,15 @@ const {
 } = require('../block-builder');
 
 const slashCommandName = process.env.MEMIFY_COMMAND_NAME || '/memify';
+const aliasCommandPrefix = '/=';
 
 function buildBlockFromPresetItem(overlayText) {
+  const text = overlayText ? encodeURIComponent(overlayText) : '[text]';
   return function([alias, content]) {
     return [
       divider,
       buildMarkdownImageSection(
-        `*${
-          content.name
-        }*\n\n\`${slashCommandName} :${alias} ${encodeURIComponent(
-          overlayText
-        )}\``,
+        `*${content.name}*\n\n\`${slashCommandName} :${alias} ${text}\``,
         {
           url: content.bgr.url,
           altText: content.name,
@@ -35,9 +33,6 @@ function buildButtonFromPresetItem([alias, content]) {
 }
 
 function buildMemeSelection(preset = {}, overlayText) {
-  if (!overlayText) {
-    return;
-  }
   const sections = Object.entries(preset);
   const images = [].concat(
     ...sections.map(buildBlockFromPresetItem(overlayText))
@@ -48,9 +43,11 @@ function buildMemeSelection(preset = {}, overlayText) {
     blocks: [
       buildMarkdownSection('This preset contains the following themes:'),
       ...images,
-      buildMarkdownSection('Pick one:'),
-      buildActionButtons(actionButtons),
-    ],
+    ].concat(
+      overlayText
+        ? [buildMarkdownSection('Pick one:'), buildActionButtons(actionButtons)]
+        : []
+    ),
   };
 }
 
@@ -72,9 +69,13 @@ function getMemifyUrl(alias, presetUrl, text) {
   return process.env.MEMIFY_ENDPOINT + processedPath;
 }
 
-module.exports = async controller => {
-  let memifyPreset = await getPresetData(process.env.MEMIFY_PRESET_URL);
+function createMessageWithImage(text, imageUrl) {
+  return {
+    attachments: [{ text, image_url: imageUrl }],
+  };
+}
 
+module.exports = async controller => {
   const overlayTextCache = {};
   let requestQuery = {};
 
@@ -84,11 +85,11 @@ module.exports = async controller => {
 
   // Intercept other slash commands and map them to /memify
   controller.middleware.ingest.use((bot, message, next) => {
-    if (!message.command || message.command === slashCommandName) {
+    if (!message.command || !message.command.startsWith(aliasCommandPrefix)) {
       return next();
     }
     const queryString = qs.stringify(requestQuery);
-    message.text = `${message.command.replace('/', ':')} ${
+    message.text = `${message.command.replace(aliasCommandPrefix, ':')} ${
       message.text
     } {{${queryString}}}`;
     message.command = slashCommandName;
@@ -102,38 +103,40 @@ module.exports = async controller => {
 
     // Slash commands with inline options come in format
     // /command text to pass to renderer {{inline=options&custom=settings}}
-    const [, preset = '', text] = message.text.match(/^\s*(:[\w-]+)?\s*(.*)/) || [];
+    const [, preset = '', text = ''] =
+      message.text.match(/^\s*(:[\w-]+)?\s*(.*)/) || [];
     const [, requestOptionsString] = text.match(/{{(.*)}}/) || [];
     const requestOptions = qs.parse(requestOptionsString);
+    const cleanedText = text.replace(/{{.*}}/, '').trim();
 
     const options = {
       presetUrl: process.env.MEMIFY_PRESET_URL,
       preset: preset.replace(/^:/, ''),
-      text: text.replace(/{{.*}}/, ''),
+      text: overlayTextCache[message.user] || cleanedText,
       ...requestOptions,
     };
 
+    const memifyPreset = await getPresetData(options.presetUrl);
+    overlayTextCache[message.user] = options.text;
+
+    // All set, get the image
     if (options.preset && options.text) {
       await bot.reply(
         message,
-        getMemifyUrl(options.preset, options.presetUrl, options.text)
+        createMessageWithImage(
+          options.text,
+          getMemifyUrl(options.preset, options.presetUrl, options.text)
+        )
       );
-      return;
-    }
-    if (!message.text) {
-      await bot.replyEphemeral(
-        message,
-        `Add some text to overlay on the image. You’ll pick the image later.\n\`${
-          message.command
-        } Text to overlay\``
-      );
+      // Clear cache
+      overlayTextCache[message.user] = '';
       return;
     }
 
-    overlayTextCache[message.user] = message.text;
+    // Bits missing, show preset details
     await bot.replyEphemeral(
       message,
-      buildMemeSelection(memifyPreset, overlayTextCache[message.user])
+      buildMemeSelection(memifyPreset, options.text)
     );
   });
 
@@ -153,7 +156,12 @@ module.exports = async controller => {
     );
     await bot.reply(
       message,
-      getMemifyUrl(value, process.env.MEMIFY_PRESET_URL, textOverlay)
+      createMessageWithImage(
+        text,
+        getMemifyUrl(value, process.env.MEMIFY_PRESET_URL, textOverlay)
+      )
     );
+    // Clear cache
+    overlayTextCache[message.user] = '';
   });
 };
