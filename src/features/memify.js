@@ -7,7 +7,7 @@ const {
   buildActionButtons,
   buildMarkdownSection,
   buildMarkdownImageSection,
-} = require('../block-builder');
+} = require('../slack/block-builder');
 
 const slashCommandName = process.env.MEMIFY_COMMAND_NAME || '/memify';
 const aliasCommandPrefix = '/=';
