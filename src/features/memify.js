@@ -1,5 +1,5 @@
 require('dotenv').config();
-const fetch = require('node-fetch');
+const axios = require('axios');
 const qs = require('querystring');
 const btoa = require('btoa');
 const {
@@ -57,7 +57,7 @@ async function getPresetData(url) {
     return {};
   }
   try {
-    return fetch(url).then(res => res.json());
+    return axios(url).then(res => res.data);
   } catch (error) {
     console.error(error);
   }
