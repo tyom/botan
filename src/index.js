@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv-flow').config();
 
 const { Botkit } = require('botkit');
 const {
@@ -6,22 +6,31 @@ const {
   SlackMessageTypeMiddleware,
   SlackEventMiddleware,
 } = require('botbuilder-adapter-slack');
+const { install, getTokenForTeam, getBotUserByTeam } = require('./install');
 const debug = require('./debug');
-const { getState, setState } = require('./state');
+
+const {
+  SLACK_BOT_TOKEN,
+  SLACK_CLIENT_ID,
+  SLACK_CLIENT_SECRET,
+  SLACK_SIGNING_SECRET,
+  REDIRECT_URI,
+  DEBUG,
+} = process.env;
 
 const adapter = new SlackAdapter({
   // Bot user OAuth access token for single team app
-  botToken: process.env.SLACK_BOT_TOKEN,
+  botToken: SLACK_BOT_TOKEN,
   // App credentials found in Basic Information used for OAuth authentication
-  clientId: process.env.SLACK_CLIENT_ID,
-  clientSecret: process.env.SLACK_CLIENT_SECRET,
-  clientSigningSecret: process.env.SLACK_SIGNING_SECRET,
+  clientId: SLACK_CLIENT_ID,
+  clientSecret: SLACK_CLIENT_SECRET,
+  clientSigningSecret: SLACK_SIGNING_SECRET,
   scopes: ['bot', 'commands', 'chat:write:bot'],
-  redirectUri: process.env.REDIRECT_URI,
+  redirectUri: REDIRECT_URI,
   // Functions required for use in multi-team app
   // which retrieve team-specific info
-  getTokenForTeam: getTokenForTeam,
-  getBotUserByTeam: getBotUserByTeam,
+  getTokenForTeam,
+  getBotUserByTeam,
 });
 
 // Use SlackEventMiddleware to emit events that match their
@@ -37,46 +46,8 @@ controller.ready(() => {
   controller.loadModules(`${__dirname}/features`);
 });
 
-controller.webserver.get('/install', (req, res) => {
-  res.redirect(controller.adapter.getInstallLink());
-});
+install(controller);
 
-controller.webserver.get('/install/auth', async (req, res) => {
-  try {
-    const results = await controller.adapter.validateOauthCode(req.query.code);
-    console.log('OAUTH DETAILS:', results);
-
-    await setState(results.team_id, {
-      botToken: results.bot.bot_access_token,
-      botUserId: results.bot.bot_user_id,
-    });
-
-    res.json('Success! Bot installed.');
-  } catch (error) {
-    console.error('OAUTH ERROR:', error);
-    res.status(401);
-    res.send(error.message);
-  }
-});
-
-async function getTokenForTeam(teamId) {
-  try {
-    const { botToken } = await getState(teamId);
-    return botToken;
-  } catch (error) {
-    console.log('Failed to get team token for', teamId);
-  }
-}
-
-async function getBotUserByTeam(teamId) {
-  try {
-    const { botUserId } = await getState(teamId);
-    return botUserId;
-  } catch (error) {
-    console.log('Failed to get team token for', teamId);
-  }
-}
-
-if (process.env.DEBUG) {
+if (DEBUG) {
   debug.logIngest(controller);
 }

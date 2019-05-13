@@ -19,7 +19,7 @@
     "cryptr": "4.0.2"
   },
   "devDependencies": {
-    "dotenv": "8.0.0",
+    "dotenv-flow": "0.4.0",
     "eslint": "^5.16.0",
     "eslint-config-tyom": "2.4.0",
     "localtunnel": "1.9.1",
