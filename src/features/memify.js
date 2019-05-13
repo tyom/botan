@@ -157,7 +157,7 @@ module.exports = async controller => {
     await bot.reply(
       message,
       createMessageWithImage(
-        text,
+        textOverlay,
         getMemifyUrl(value, process.env.MEMIFY_PRESET_URL, textOverlay)
       )
     );
