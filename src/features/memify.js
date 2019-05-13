@@ -9,16 +9,14 @@ const {
   buildMarkdownImageSection,
 } = require('../slack/block-builder');
 
-const slashCommandName = process.env.MEMIFY_COMMAND_NAME || '/memify';
-const aliasCommandPrefix = '/=';
-
-function buildBlockFromPresetItem(overlayText) {
+function buildBlockFromPresetItem(command, overlayText) {
   const text = overlayText ? encodeURIComponent(overlayText) : '[text]';
   return function([alias, content]) {
+    const preset = command.slice(1) !== alias ? ` :${alias}` : '';
     return [
       divider,
       buildMarkdownImageSection(
-        `*${content.name}*\n\n\`${slashCommandName} :${alias} ${text}\``,
+        `*${content.name}*\n\n\`${command}${preset} ${text}\``,
         {
           url: content.bgr.url,
           altText: content.name,
@@ -32,22 +30,30 @@ function buildButtonFromPresetItem([alias, content]) {
   return { text: content.name, value: alias };
 }
 
-function buildMemeSelection(preset = {}, overlayText) {
-  const sections = Object.entries(preset);
+function buildMemeSelection({ command, preset = {}, text, presetKey }) {
+  // Remove other themes from the preset if presetKey is given
+  // (commands with presetUrl/preset in query params)
+  const sections = Object.entries(preset).filter(([p]) => !presetKey || p === presetKey);
   const images = [].concat(
-    ...sections.map(buildBlockFromPresetItem(overlayText))
+    ...sections.map(buildBlockFromPresetItem(command, text))
   );
   const actionButtons = sections.map(buildButtonFromPresetItem);
 
   return {
     blocks: [
       buildMarkdownSection('This preset contains the following themes:'),
+      text && buildMarkdownSection(`Using the text: _${text}_`),
       ...images,
-    ].concat(
-      overlayText
-        ? [buildMarkdownSection('Pick one:'), buildActionButtons(actionButtons)]
-        : []
-    ),
+    ]
+      .concat(
+        text
+          ? [
+              buildMarkdownSection('Select the image to render:'),
+              buildActionButtons(actionButtons),
+            ]
+          : []
+      )
+      .filter(Boolean),
   };
 }
 
@@ -83,40 +89,26 @@ module.exports = async controller => {
     requestQuery = req.query;
   });
 
-  // Intercept other slash commands and map them to /memify
-  controller.middleware.ingest.use((bot, message, next) => {
-    if (!message.command || !message.command.startsWith(aliasCommandPrefix)) {
-      return next();
-    }
-    const queryString = qs.stringify(requestQuery);
-    message.text = `${message.command.replace(aliasCommandPrefix, ':')} ${
-      message.text
-    } {{${queryString}}}`;
-    message.command = slashCommandName;
-    next();
-  });
-
   controller.on('slash_command', async (bot, message) => {
-    if (message.command !== slashCommandName) {
-      return;
-    }
-
-    // Slash commands with inline options come in format
-    // /command text to pass to renderer {{inline=options&custom=settings}}
+    let memifyPreset;
     const [, preset = '', text = ''] =
       message.text.match(/^\s*(:[\w-]+)?\s*(.*)/) || [];
-    const [, requestOptionsString] = text.match(/{{(.*)}}/) || [];
-    const requestOptions = qs.parse(requestOptionsString);
-    const cleanedText = text.replace(/{{.*}}/, '').trim();
-
     const options = {
       presetUrl: process.env.MEMIFY_PRESET_URL,
       preset: preset.replace(/^:/, ''),
-      text: overlayTextCache[message.user] || cleanedText,
-      ...requestOptions,
+      text: text || overlayTextCache[message.user],
+      ...requestQuery,
     };
 
-    const memifyPreset = await getPresetData(options.presetUrl);
+    if (!options.presetUrl) {
+      return;
+    }
+    try {
+      memifyPreset = await getPresetData(options.presetUrl);
+    } catch (error) {
+      return;
+    }
+
     overlayTextCache[message.user] = options.text;
 
     // All set, get the image
@@ -136,7 +128,12 @@ module.exports = async controller => {
     // Bits missing, show preset details
     await bot.replyEphemeral(
       message,
-      buildMemeSelection(memifyPreset, options.text)
+      buildMemeSelection({
+        command: message.command,
+        preset: memifyPreset,
+        presetKey: requestQuery.preset,
+        text: options.text,
+      })
     );
   });
 
@@ -171,10 +168,7 @@ module.exports = async controller => {
 
     await bot.replyPublic(
       action,
-      createMessageWithImage(
-        text,
-        getMemifyUrl(alias, presetUrl, text)
-      )
+      createMessageWithImage(text, getMemifyUrl(alias, presetUrl, text))
     );
   });
 };
