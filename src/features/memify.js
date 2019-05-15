@@ -57,16 +57,12 @@ function buildMemeSelection({ command, preset = {}, text, presetKey }) {
   };
 }
 
-async function getPresetData(url) {
+function getPresetData(url) {
   if (!url) {
     console.log('MEMIFY_PRESET_URL env variable is not set.');
     return {};
   }
-  try {
-    return axios(url).then(res => res.data);
-  } catch (error) {
-    console.error(error);
-  }
+  return axios(url).then(res => res.data);
 }
 
 function getMemifyUrl(alias, presetUrl, text) {
@@ -106,7 +102,7 @@ module.exports = async controller => {
     try {
       memifyPreset = await getPresetData(options.presetUrl);
     } catch (error) {
-      return;
+      throw new Error(`Failed to get preset data: ${error.message}`);
     }
 
     overlayTextCache[message.user] = options.text;
