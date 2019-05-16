@@ -4,6 +4,7 @@ dependencies:
   botbuilder-adapter-slack: 1.0.2
   btoa: 1.2.1
   cryptr: 4.0.2
+  lodash: 4.17.11
 devDependencies:
   dotenv-flow: 0.4.0
   eslint: 5.16.0
@@ -4103,5 +4104,6 @@ specifiers:
   eslint: ^5.16.0
   eslint-config-tyom: 2.4.0
   localtunnel: 1.9.1
+  lodash: ^4.17.11
   nodemon: 1.19.0
   now: 15.2.0
