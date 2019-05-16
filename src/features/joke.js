@@ -2,7 +2,7 @@ const { upperFirst } = require('lodash');
 const JOKES_ENDPOINT = 'https://sv443.net/jokeapi/category/{category}';
 
 module.exports = controller => {
-  const re = /^tell me a(\s+\w+)?\s+joke$/i;
+  const re = /^tell me a(\s+\w+)?\s+joke\.?$/i;
 
   controller.hears(re, ['message', 'direct_message'], async (bot, message) => {
     const [, category = 'any'] = message.text.match(re);
