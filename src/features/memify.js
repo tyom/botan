@@ -159,12 +159,12 @@ module.exports = async controller => {
   });
 
   controller.on('message_action', async (bot, action) => {
-    const { presetUrl, alias } = qs.parse(action.callback_id);
+    const { presetUrl, preset } = qs.parse(action.callback_id);
     const text = action.message.text;
 
     await bot.replyPublic(
       action,
-      createMessageWithImage(text, getMemifyUrl(alias, presetUrl, text))
+      createMessageWithImage(text, getMemifyUrl(preset, presetUrl, text))
     );
   });
 };
