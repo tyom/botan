@@ -16,7 +16,8 @@
     "botbuilder": "4.4.0",
     "botbuilder-adapter-slack": "1.0.2",
     "btoa": "1.2.1",
-    "cryptr": "4.0.2"
+    "cryptr": "4.0.2",
+    "lodash": "^4.17.11"
   },
   "devDependencies": {
     "dotenv-flow": "0.4.0",
