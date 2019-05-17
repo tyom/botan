@@ -29,7 +29,7 @@ module.exports = controller => {
           if (RelatedTopics.length) {
             return bot.say(`*${query}* is too ambiguous. Try to narrow it down.`);
           }
-          return bot.say(`I’ve nothing for *${query}*.`);
+          return bot.say(`I’ve nothing on *${query}*.`);
         }
         const resultsData = Results.map(({ FirstURL, Text }) =>
           text(`<${FirstURL}|${Text}>`, TEXT_FORMAT_MRKDWN),
