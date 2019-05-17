@@ -8,6 +8,7 @@ const {
 } = require('botbuilder-adapter-slack');
 const { install, getTokenForTeam, getBotUserByTeam } = require('./install');
 const debug = require('./debug');
+const help = require('./help');
 
 const {
   SLACK_BOT_TOKEN,
@@ -44,6 +45,13 @@ const controller = new Botkit({ adapter });
 
 controller.ready(() => {
   controller.loadModules(`${__dirname}/features`);
+  controller.hears(
+    /^help$/,
+    ['direct_mention', 'direct_message'],
+    async bot => {
+      await bot.say(help);
+    },
+  );
 });
 
 install(controller);

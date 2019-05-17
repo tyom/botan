@@ -2,7 +2,7 @@ const URBAN_DICTIONARY_ENDPOINT = 'http://api.urbandictionary.com/v0/define';
 
 function define(term) {
   return fetch(`${URBAN_DICTIONARY_ENDPOINT}?term=${term}`).then(res =>
-    res.json()
+    res.json(),
   );
 }
 

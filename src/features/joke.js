@@ -6,17 +6,18 @@ module.exports = controller => {
 
   controller.hears(re, ['message', 'direct_message'], async (bot, message) => {
     const [, category = 'any'] = message.text.match(re);
-    const jokeCategory = ['any', 'dark', 'programming']
-      .includes(category.trim().toLowerCase())
-        ? upperFirst(category.trim())
-        : 'Miscellaneous';
-    
+    const jokeCategory = ['any', 'dark', 'programming'].includes(
+      category.trim().toLowerCase(),
+    )
+      ? upperFirst(category.trim())
+      : 'Miscellaneous';
+
     try {
       const { type, joke, setup, delivery } = await fetch(
-        JOKES_ENDPOINT.replace('{category}', jokeCategory)
+        JOKES_ENDPOINT.replace('{category}', jokeCategory),
       ).then(res => res.json());
       if (type === 'twopart') {
-       await bot.reply(message, `*${setup}*\n${delivery}`);
+        await bot.reply(message, `*${setup}*\n${delivery}`);
       } else {
         await bot.reply(message, joke);
       }
@@ -26,4 +27,3 @@ module.exports = controller => {
     }
   });
 };
-
