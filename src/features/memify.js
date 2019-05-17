@@ -9,6 +9,9 @@ const {
   buildMarkdownImageSection,
 } = require('../slack/block-builder');
 
+const MEMIFY_PRESET_URL = 'https://api.myjson.com/bins/1gqsgk';
+const MEMIFY_ENDPOINT = 'https://memify.tyom.dev/r/';
+
 function buildBlockFromPresetItem(command, overlayText) {
   const text = overlayText ? encodeURIComponent(overlayText) : '[text]';
   return function([alias, content]) {
@@ -68,7 +71,7 @@ function getPresetData(url) {
 function getMemifyUrl(alias, presetUrl, text) {
   const path = `${alias}?presetUrl=${presetUrl}&text=${text}`;
   const processedPath = process.env.ENCODE_URL ? btoa(path) : path;
-  return process.env.MEMIFY_ENDPOINT + processedPath;
+  return MEMIFY_ENDPOINT + processedPath;
 }
 
 function createMessageWithImage(text, imageUrl) {
@@ -90,7 +93,7 @@ module.exports = async controller => {
     const [, preset = '', text = ''] =
       message.text.match(/^\s*(:[\w-]+)?\s*(.*)/) || [];
     const options = {
-      presetUrl: process.env.MEMIFY_PRESET_URL,
+      presetUrl: MEMIFY_PRESET_URL,
       preset: preset.replace(/^:/, ''),
       text: text || overlayTextCache[message.user],
       ...requestQuery,
@@ -151,7 +154,7 @@ module.exports = async controller => {
       message,
       createMessageWithImage(
         textOverlay,
-        getMemifyUrl(value, process.env.MEMIFY_PRESET_URL, textOverlay)
+        getMemifyUrl(value, MEMIFY_PRESET_URL, textOverlay)
       )
     );
     // Clear cache
