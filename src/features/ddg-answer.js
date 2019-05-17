@@ -27,7 +27,9 @@ module.exports = controller => {
 
         if (!Heading || !Abstract) {
           if (RelatedTopics.length) {
-            return bot.say(`*${query}* is too ambiguous. Try to narrow it down.`);
+            return bot.say(
+              `*${query}* is too ambiguous. Try to narrow it down.`,
+            );
           }
           return bot.say(`I’ve nothing on *${query}*.`);
         }
@@ -46,10 +48,16 @@ module.exports = controller => {
 
         await bot.say({
           blocks: [
-            section(text(`${heading}${abstract}`, TEXT_FORMAT_MRKDWN)),
+            section(
+              text(`${heading}${abstract}`, TEXT_FORMAT_MRKDWN),
+              Image
+                ? {
+                    accessory: image(Image, Heading),
+                  }
+                : undefined,
+            ),
             resultsData.length && context(resultsData),
             infoboxData.length && context(infoboxData),
-            Image && image(Image, Heading),
           ].filter(Boolean),
         });
       } catch (error) {
