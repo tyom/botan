@@ -3,58 +3,74 @@ const axios = require('axios');
 const qs = require('querystring');
 const btoa = require('btoa');
 const {
-  divider,
-  buildActionButtons,
-  buildMarkdownSection,
-  buildMarkdownImageSection,
-} = require('../slack/block-builder');
+  block,
+  element,
+  object,
+  TEXT_FORMAT_MRKDWN,
+} = require('slack-block-kit');
+const { text } = object;
+const { button } = element;
+const { section, context, actions, divider, image } = block;
 
 const MEMIFY_PRESET_URL = 'https://api.myjson.com/bins/1gqsgk';
 const MEMIFY_ENDPOINT = 'https://memify.tyom.dev/r/';
+const ACTION_BLOCK_ID = 'memify-actions';
 
 function buildBlockFromPresetItem(command, overlayText) {
-  const text = overlayText ? encodeURIComponent(overlayText) : '[text]';
-  return function([alias, content]) {
-    const preset = command.slice(1) !== alias ? ` :${alias}` : '';
+  const processedText = overlayText
+    ? encodeURIComponent(overlayText)
+    : '[text]';
+  return function([presetKey, content]) {
+    const preset = command.slice(1) !== presetKey ? ` :${presetKey}` : '';
     return [
-      divider,
-      buildMarkdownImageSection(
-        `*${content.name}*\n\n\`${command}${preset} ${text}\``,
+      divider(),
+      section(
+        text(
+          `*${content.name}*\n\n\`${command}${preset} ${processedText}\``,
+          TEXT_FORMAT_MRKDWN,
+        ),
         {
-          url: content.bgr.url,
-          altText: content.name,
-        }
+          accessory: image(content.bgr.url, content.name),
+        },
       ),
     ];
   };
 }
 
-function buildButtonFromPresetItem([alias, content]) {
-  return { text: content.name, value: alias };
-}
-
-function buildMemeSelection({ command, preset = {}, text, presetKey }) {
+function buildMemeSelection({
+  command,
+  preset = {},
+  overlayText = '',
+  presetKey,
+}) {
   // Remove other themes from the preset if presetKey is given
   // (commands with presetUrl/preset in query params)
-  const sections = Object.entries(preset).filter(([p]) => !presetKey || p === presetKey);
-  const images = [].concat(
-    ...sections.map(buildBlockFromPresetItem(command, text))
+  const sections = Object.entries(preset).filter(
+    ([p]) => !presetKey || p === presetKey,
   );
-  const actionButtons = sections.map(buildButtonFromPresetItem);
+  const images = [].concat(
+    ...sections.map(buildBlockFromPresetItem(command, overlayText)),
+  );
+  const actionButtons = sections.map(([presetKey, content]) =>
+    button(presetKey, content.name),
+  );
 
   return {
     blocks: [
-      buildMarkdownSection('This preset contains the following themes:'),
-      text && buildMarkdownSection(`Using the text: _${text}_`),
+      section(text('This preset contains the following themes:')),
+      overlayText &&
+        context([text(`Using the text: *${overlayText}*`, TEXT_FORMAT_MRKDWN)]),
       ...images,
     ]
       .concat(
-        text
+        overlayText
           ? [
-              buildMarkdownSection('Select the image to render:'),
-              buildActionButtons(actionButtons),
+              section(text('Select the image to render:')),
+              actions(actionButtons, {
+                blockId: ACTION_BLOCK_ID,
+              }),
             ]
-          : []
+          : [],
       )
       .filter(Boolean),
   };
@@ -68,15 +84,19 @@ function getPresetData(url) {
   return axios(url).then(res => res.data);
 }
 
-function getMemifyUrl(alias, presetUrl, text) {
-  const path = `${alias}?presetUrl=${presetUrl}&text=${text}`;
+function getMemifyUrl(presetKey, presetUrl, text) {
+  const path = `${presetKey}?presetUrl=${presetUrl}&text=${text}`;
   const processedPath = process.env.ENCODE_URL ? btoa(path) : path;
   return MEMIFY_ENDPOINT + processedPath;
 }
 
-function createMessageWithImage(text, imageUrl) {
+function createImageResponse(url, altText, titleText = '') {
   return {
-    attachments: [{ text, image_url: imageUrl }],
+    blocks: [
+      image(url, altText, {
+        titleText,
+      }),
+    ],
   };
 }
 
@@ -90,12 +110,12 @@ module.exports = async controller => {
 
   controller.on('slash_command', async (bot, message) => {
     let memifyPreset;
-    const [, preset = '', text = ''] =
+    const [, preset = '', overlayText = ''] =
       message.text.match(/^\s*(:[\w-]+)?\s*(.*)/) || [];
     const options = {
       presetUrl: MEMIFY_PRESET_URL,
       preset: preset.replace(/^:/, ''),
-      text: text || overlayTextCache[message.user],
+      overlayText: overlayText || overlayTextCache[message.user],
       ...requestQuery,
     };
 
@@ -108,16 +128,16 @@ module.exports = async controller => {
       throw new Error(`Failed to get preset data: ${error.message}`);
     }
 
-    overlayTextCache[message.user] = options.text;
+    overlayTextCache[message.user] = options.overlayText;
 
     // All set, get the image
-    if (options.preset && options.text) {
-      await bot.reply(
-        message,
-        createMessageWithImage(
-          options.text,
-          getMemifyUrl(options.preset, options.presetUrl, options.text)
-        )
+    if (options.preset && options.overlayText) {
+      await bot.say(
+        createImageResponse(
+          getMemifyUrl(options.preset, options.presetUrl, options.overlayText),
+          options.overlayText,
+          options.overlayText,
+        ),
       );
       // Clear cache
       overlayTextCache[message.user] = '';
@@ -131,13 +151,18 @@ module.exports = async controller => {
         command: message.command,
         preset: memifyPreset,
         presetKey: requestQuery.preset,
-        text: options.text,
-      })
+        overlayText: options.overlayText,
+      }),
     );
   });
 
   controller.on('block_actions', async (bot, message) => {
-    const { value, text } = message.actions[0];
+    const action = message.actions[0];
+
+    if (action.block_id !== ACTION_BLOCK_ID) {
+      return;
+    }
+
     const textOverlay = overlayTextCache[message.user];
 
     if (!textOverlay) {
@@ -148,14 +173,16 @@ module.exports = async controller => {
     const user = message.incoming_message.channelData.user;
     await bot.replyInteractive(
       message,
-      `Hey ${user.name}, your meme '${text.text}' with text \`${textOverlay}\`:`
+      `Hey ${user.name}, your meme '${
+        action.text.text
+      }' with text \`${textOverlay}\`:`,
     );
-    await bot.reply(
-      message,
-      createMessageWithImage(
+    await bot.say(
+      createImageResponse(
+        getMemifyUrl(action.action_id, MEMIFY_PRESET_URL, textOverlay),
         textOverlay,
-        getMemifyUrl(value, MEMIFY_PRESET_URL, textOverlay)
-      )
+        textOverlay,
+      ),
     );
     // Clear cache
     overlayTextCache[message.user] = '';
@@ -163,11 +190,14 @@ module.exports = async controller => {
 
   controller.on('message_action', async (bot, action) => {
     const { presetUrl, preset } = qs.parse(action.callback_id);
-    const text = action.message.text;
+    const textOverlay = action.message.text;
 
-    await bot.replyPublic(
-      action,
-      createMessageWithImage(text, getMemifyUrl(preset, presetUrl, text))
+    await bot.say(
+      createImageResponse(
+        getMemifyUrl(preset, presetUrl, textOverlay),
+        textOverlay,
+        textOverlay,
+      ),
     );
   });
 };
