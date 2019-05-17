@@ -1,3 +1,7 @@
+const { block, object, TEXT_FORMAT_MRKDWN } = require('slack-block-kit');
+const { text } = object;
+const { section, context } = block;
+
 const URBAN_DICTIONARY_ENDPOINT = 'http://api.urbandictionary.com/v0/define';
 
 function define(term) {
@@ -18,7 +22,15 @@ module.exports = controller => {
         return bot.reply(message, `Haven’t a clue, ${user.name}.`);
       }
       const randomResult = list[Math.floor(Math.random() * list.length)];
-      await bot.reply(message, `*${term}*\n${randomResult.definition}`);
+
+      await bot.reply(message, {
+        blocks: [
+          section(
+            text(`*${term}*\n${randomResult.definition}`, TEXT_FORMAT_MRKDWN),
+          ),
+          context([text(randomResult.example)]),
+        ],
+      });
     } catch (error) {
       console.error(error.message);
     }
