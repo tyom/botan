@@ -12,7 +12,7 @@ const { text } = object;
 const { button } = element;
 const { section, context, actions, divider, image } = block;
 
-const MEMIFY_PRESET_URL = 'https://api.myjson.com/bins/1gqsgk';
+const MEMIFY_PRESET_URL = 'https://api.npoint.io/2f966781e0441822585d';
 const MEMIFY_ENDPOINT = 'https://memify.tyom.dev/r/';
 const ACTION_BLOCK_ID = 'memify-actions';
 
