@@ -20,6 +20,10 @@ module.exports = controller => {
     try {
       const { data } = await axios(url);
       const { title, text } = unfluff(data);
+      if (!text) {
+        await bot.reply(message, 'There appears to be no text. Maybe it requires JS?');
+        return;
+      }
       const summary = await aylienApi.get('/summarize', {
         params: {
           title,
