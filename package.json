@@ -6,8 +6,6 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "deploy": "now `[ $NOW_TOKEN ] && echo -t $NOW_TOKEN`",
-    "deploy:production": "yarn deploy --target production",
     "tunnel": "lt -p 3333 -s botan --print-requests",
     "lint": "eslint src ."
   },
