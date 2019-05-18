@@ -53,7 +53,7 @@ module.exports = {
     divider(),
     section(
       text(
-        '*`summarise`* or *`summarize`* or *`summary [url]`*',
+        '*`summarise`* or *`summarize`* or *`summary`* or *`tldr [url]`*',
         TEXT_FORMAT_MRKDWN,
       ),
     ),

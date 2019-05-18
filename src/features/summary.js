@@ -8,7 +8,7 @@ const aylienApi = axios.create({
 });
 
 module.exports = controller => {
-  const re = /^(summarise|summarize|summary) `?<(.+)>`?$/i;
+  const re = /^(summarise|summarize|summary|tldr) `?<(.+)>`?$/i;
   let respondedForTitle;
 
   controller.hears(re, ['message', 'direct_message'], async (bot, message) => {
