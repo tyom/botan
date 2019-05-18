@@ -2,7 +2,6 @@ const { duckIt } = require('node-duckduckgo');
 const { isString } = require('lodash');
 const {
   block,
-  element,
   object,
   TEXT_FORMAT_MRKDWN,
 } = require('slack-block-kit');
