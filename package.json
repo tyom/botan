@@ -19,7 +19,8 @@
     "cryptr": "4.0.2",
     "lodash": "^4.17.11",
     "node-duckduckgo": "2.0.2",
-    "slack-block-kit": "0.9.3"
+    "slack-block-kit": "0.9.3",
+    "unfluff": "3.2.0"
   },
   "devDependencies": {
     "dotenv-flow": "0.4.0",

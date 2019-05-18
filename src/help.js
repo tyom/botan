@@ -47,6 +47,19 @@ module.exports = {
       ),
     ),
     divider(),
+    section(
+      text(
+        '*`summarise`* or *`summarize`* or *`summary [url]`*',
+        TEXT_FORMAT_MRKDWN,
+      ),
+    ),
+    section(
+      text(
+        'Get a summary for web page URL. Wrap URL in tilde (`) to prevent unfurling',
+      ),
+    ),
+
+    divider(),
     section(text('*`/memify :preset [text]`*', TEXT_FORMAT_MRKDWN)),
     section(
       text(
