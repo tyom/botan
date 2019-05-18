@@ -85,7 +85,9 @@ function getPresetData(url) {
 }
 
 function getMemifyUrl(presetKey, presetUrl, text) {
-  const path = `${presetKey}?presetUrl=${presetUrl}&text=${text}`;
+  const path = `${presetKey}?presetUrl=${encodeURIComponent(
+    presetUrl,
+  )}&text=${encodeURIComponent(text)}`;
   const processedPath = process.env.ENCODE_URL ? btoa(path) : path;
   return MEMIFY_ENDPOINT + processedPath;
 }
