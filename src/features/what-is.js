@@ -1,4 +1,5 @@
-const { truncate } = require('lodash');
+const { get, truncate } = require('lodash');
+const axios = require('axios');
 const {
   block,
   element,
@@ -9,18 +10,26 @@ const { overflow } = element;
 const { text, option } = object;
 const { section, context } = block;
 
-const URBAN_DICTIONARY_ENDPOINT = 'http://api.urbandictionary.com/v0/define';
+const ubApi = axios.create({
+  baseURL: 'http://api.urbandictionary.com/v0',
+});
 
-function define(term) {
-  return fetch(`${URBAN_DICTIONARY_ENDPOINT}?term=${term}`).then(res =>
-    res.json(),
-  );
+async function define(term) {
+  try {
+    const { data } = await ubApi.get(`define?term=${term}`);
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
 }
 
-function getDefinitionById(id) {
-  return fetch(`${URBAN_DICTIONARY_ENDPOINT}?defid=${id}`)
-    .then(res => res.json())
-    .then(({ list = [] }) => list[0]);
+async function getDefinitionById(id) {
+  try {
+    const { data } = await ubApi.get(`define?defid=${id}`);
+    return get(data, 'list', [])[0];
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function constructResponse(defineObj, otherDefinitions = []) {
@@ -84,7 +93,7 @@ module.exports = controller => {
     }
     try {
       const definition = await getDefinitionById(action.selected_option.value);
-      bot.reply(message, constructResponse(definition));
+      return bot.reply(message, constructResponse(definition));
     } catch (error) {
       console.error(error);
     }

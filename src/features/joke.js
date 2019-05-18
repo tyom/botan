@@ -1,5 +1,8 @@
 const { upperFirst } = require('lodash');
-const JOKES_ENDPOINT = 'https://sv443.net/jokeapi/category/{category}';
+const axios = require('axios');
+const jokeApi = axios.create({
+  baseURL: 'https://sv443.net/jokeapi/category/',
+});
 
 module.exports = controller => {
   const re = /^tell me a(\s+\w+)?\s+joke\.?$/i;
@@ -13,15 +16,13 @@ module.exports = controller => {
       : 'Miscellaneous';
 
     try {
-      const { type, joke, setup, delivery } = await fetch(
-        JOKES_ENDPOINT.replace('{category}', jokeCategory),
-      ).then(res => res.json());
+      const { data } = await jokeApi.get(jokeCategory);
+      const { type, joke, setup, delivery } = data;
       if (type === 'twopart') {
         await bot.reply(message, `*${setup}*\n${delivery}`);
       } else {
         await bot.reply(message, joke);
       }
-      // await bot.reply(message, `${nameToInsult}, ${insult.toLowerCase()}`);
     } catch (error) {
       console.error(error.message);
     }

@@ -1,4 +1,12 @@
-const GENERATOR_ENDPOINT = 'https://evilinsult.com/generate_insult.php?lang=en&type=json';
+const axios = require('axios');
+
+const insultApi = axios.create({
+  baseURL: 'https://evilinsult.com',
+  params: {
+    lang: 'en',
+    type: 'json',
+  }
+});
 
 module.exports = controller => {
   const re = /^insult (\w+)$/i;
@@ -10,9 +18,9 @@ module.exports = controller => {
     }
     try {
       const { user } = await bot.api.users.info({ user: message.user });
-      const { insult } = await fetch(GENERATOR_ENDPOINT).then(res => res.json());
+      const { data } = await insultApi.get('/generate_insult.php');
       const nameToInsult = name.toLowerCase() === 'botan' ? user.name : name;
-      await bot.reply(message, `${nameToInsult}, ${insult.toLowerCase()}`);
+      await bot.reply(message, `${nameToInsult}, ${data.insult.toLowerCase()}`);
     } catch (error) {
       console.error(error.message);
     }
