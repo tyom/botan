@@ -1,10 +1,9 @@
+const { truncate } = require('lodash');
 const unfluff = require('unfluff');
 const axios = require('axios');
 
-const AYLIEN_TEXT_ENDPOINT = 'https://aylien-text.p.rapidapi.com';
-
 const aylienApi = axios.create({
-  baseURL: AYLIEN_TEXT_ENDPOINT,
+  baseURL: 'https://aylien-text.p.rapidapi.com',
   headers: { 'X-RapidAPI-Key': process.env.AYLIEN_TEXT_API_KEY },
 });
 
@@ -24,10 +23,17 @@ module.exports = controller => {
         await bot.reply(message, 'There appears to be no text. Maybe it requires JS?');
         return;
       }
+      // The maximum text size is limited in the API
+      // const truncatedText = text.slice(0, 5200).trim();
+      const truncatedText = truncate(text, {
+        length: 5200,
+        separator: /\./,
+        omission: '.',
+      });
       const summary = await aylienApi.get('/summarize', {
         params: {
           title,
-          text,
+          text: truncatedText,
         },
       });
       if (respondedForTitle !== title) {
