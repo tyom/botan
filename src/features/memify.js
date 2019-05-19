@@ -19,9 +19,9 @@ const ACTION_BLOCK_ID = 'memify-actions';
 function buildBlockFromPresetItem(command, overlayText) {
   const processedText = overlayText
     ? encodeURIComponent(overlayText)
-    : '[text]';
+    : '[caption]';
   return function([presetKey, content]) {
-    const preset = command.slice(1) !== presetKey ? ` :${presetKey}` : '';
+    const preset = command.slice(1) !== presetKey ? ` (:${presetKey})` : '';
     return [
       divider(),
       section(
