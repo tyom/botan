@@ -33,6 +33,12 @@ function buildBlockFromPresetItem(command, overlayText) {
           accessory: image(content.bgr.url, content.name),
         },
       ),
+      context([
+        text(
+          `Start with *${command}*, add *:preset-key* followed by *caption*. If preset key is omitted but caption is given, the caption will be remembered and another interactive message pops up to pick the image for the caption.`,
+          TEXT_FORMAT_MRKDWN,
+        ),
+      ]),
     ];
   };
 }
