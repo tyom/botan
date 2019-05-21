@@ -16,7 +16,7 @@ const ubApi = axios.create({
 
 async function define(term) {
   try {
-    const { data } = await ubApi.get(`define?term=${term}`);
+    const { data } = await ubApi.get(`define?term=${encodeURIComponent(term)}`);
     return data;
   } catch (error) {
     console.error(error);
@@ -61,6 +61,10 @@ function constructResponse(defineObj, otherDefinitions = []) {
   };
 }
 
+function getRandomItem(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
 module.exports = controller => {
   const re = /^(what is|what’s)\s?a? (.+)\?$/i;
 
@@ -68,14 +72,18 @@ module.exports = controller => {
     const [, , term] = message.text.match(re);
     try {
       const { list } = await define(term);
-      if (!list.length) {
+      const exactMatches = list.filter(x => x.word.toLowerCase() === term.toLowerCase());
+      
+      if (!exactMatches.length) {
         const { user } = await bot.api.users.info({ user: message.user });
         return bot.reply(message, `Haven’t a clue, ${user.name}.`);
       }
-      const randomResult = list[Math.floor(Math.random() * list.length)];
-      const otherDefinitions = list
+      // const relevantList = exactMatches.length ? exactMatches : list;
+      const randomResult = getRandomItem(exactMatches);
+      const otherDefinitions = exactMatches
         .filter(d => d.defid !== randomResult.defid)
         .slice(0, 5);
+      const result = list.find(x => x.word.toLowerCase() === term.toLowerCase())
 
       await bot.reply(
         message,
