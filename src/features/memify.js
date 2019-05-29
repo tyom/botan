@@ -1,41 +1,42 @@
 require('dotenv').config();
-const axios = require('axios');
 const qs = require('querystring');
-const btoa = require('btoa');
 const {
   block,
   element,
   object,
   TEXT_FORMAT_MRKDWN,
 } = require('slack-block-kit');
+const {
+  getDocumentFromCloud,
+  getAllDocumentsFromCloudByIds,
+} = require('../memify-db');
+
 const { text } = object;
 const { button } = element;
 const { section, context, actions, divider, image } = block;
 
-const { MEMIFY_PRESET_URL } = process.env;
-const MEMIFY_ENDPOINT = 'https://memify.tyom.dev/r/';
+const MEMIFY_ENDPOINT = 'https://memify.tyom.dev';
 const ACTION_BLOCK_ID = 'memify-actions';
 
-function buildBlockFromPresetItem(command, overlayText) {
-  const processedText = overlayText
-    ? encodeURIComponent(overlayText)
-    : '[caption]';
-  return function([presetKey, content]) {
-    const preset = command.slice(1) !== presetKey ? ` (:${presetKey})` : '';
+function buildBlockFromPresetItem(command, caption) {
+  const captionText = caption ? encodeURIComponent(caption) : '[caption]';
+  return meme => {
     return [
       divider(),
       section(
         text(
-          `*${content.name}*\n\n\`${command}${preset} ${processedText}\``,
+          `*<${getMemeUrl({ memeId: meme.id, caption })}|${
+            meme.title
+          }>*\n\n\`${command} =${meme.id} ${captionText}\``,
           TEXT_FORMAT_MRKDWN,
         ),
         {
-          accessory: image(content.bgr.url, content.name),
+          accessory: image(meme.image.src, meme.title),
         },
       ),
       context([
         text(
-          `Start with *${command}*, add *:preset-key* followed by *caption*. If preset key is omitted but caption is given, the caption will be remembered and another interactive message pops up to pick the image for the caption.`,
+          `Start with *${command}*, add *=memeId* followed by *caption*. If memeId is omitted but caption is given, the caption will be remembered and another interactive message pops up to pick the image for the caption.`,
           TEXT_FORMAT_MRKDWN,
         ),
       ]),
@@ -46,32 +47,31 @@ function buildBlockFromPresetItem(command, overlayText) {
 function buildMemeSelection({
   command,
   preset = {},
-  overlayText = '',
-  presetKey,
+  items = [],
+  caption = '',
 }) {
-  // Remove other themes from the preset if presetKey is given
-  // (commands with presetUrl/preset in query params)
-  const sections = Object.entries(preset).filter(
-    ([p]) => !presetKey || p === presetKey,
-  );
   const images = [].concat(
-    ...sections.map(buildBlockFromPresetItem(command, overlayText)),
+    ...items.map(buildBlockFromPresetItem(command, caption)),
   );
-  const actionButtons = sections.map(([presetKey, content]) =>
-    button(presetKey, content.name),
-  );
+  const actionButtons = items.map(meme => button(meme.id, meme.title));
 
   return {
     blocks: [
-      section(text('This preset contains the following themes:')),
-      overlayText &&
-        context([text(`Using the text: *${overlayText}*`, TEXT_FORMAT_MRKDWN)]),
+      section(
+        text(
+          `<${getPresetUrl({ presetId: preset.id, caption })}|${
+            preset.title
+          }> preset contains ${items.length} items:`,
+          TEXT_FORMAT_MRKDWN,
+        ),
+      ),
       ...images,
     ]
       .concat(
-        overlayText
+        caption
           ? [
-              section(text('Select the image to render:')),
+              context([text(`> *${caption}*`, TEXT_FORMAT_MRKDWN)]),
+              section(text('Render on:')),
               actions(actionButtons, {
                 blockId: ACTION_BLOCK_ID,
               }),
@@ -82,20 +82,17 @@ function buildMemeSelection({
   };
 }
 
-function getPresetData(url) {
-  if (!url) {
-    console.log('MEMIFY_PRESET_URL env variable is not set.');
-    return {};
-  }
-  return axios(url).then(res => res.data);
+function getMemeRenderUrl({ memeId, caption }) {
+  return `${MEMIFY_ENDPOINT}/r/${memeId}?text=${encodeURIComponent(caption)}`;
 }
 
-function getMemifyUrl(presetKey, presetUrl, text) {
-  const path = `${presetKey}?presetUrl=${encodeURIComponent(
-    presetUrl,
-  )}&text=${encodeURIComponent(text)}`;
-  const processedPath = process.env.ENCODE_URL ? btoa(path) : path;
-  return MEMIFY_ENDPOINT + processedPath;
+function getPresetUrl({ presetId, memeId, caption }) {
+  const memePath = memeId ? `/${memeId}` : '';
+  return `${MEMIFY_ENDPOINT}/#/preset/${presetId}${memePath}?text=${caption}`;
+}
+
+function getMemeUrl({ memeId, caption }) {
+  return `${MEMIFY_ENDPOINT}/#/${memeId}?text=${caption}`;
 }
 
 function createImageResponse(url, altText, titleText = '') {
@@ -109,7 +106,7 @@ function createImageResponse(url, altText, titleText = '') {
 }
 
 module.exports = async controller => {
-  const overlayTextCache = {};
+  const captionCache = {};
   let requestQuery = {};
 
   controller.http.on('request', req => {
@@ -117,94 +114,82 @@ module.exports = async controller => {
   });
 
   controller.on('slash_command', async (bot, message) => {
-    let memifyPreset;
-    const [, preset = '', overlayText = ''] =
-      message.text.match(/^\s*(:[\w-]+)?\s*(.*)/) || [];
-    const options = {
-      presetUrl: MEMIFY_PRESET_URL,
-      preset: preset.replace(/^:/, ''),
-      overlayText: overlayText || overlayTextCache[message.user],
-      ...requestQuery,
-    };
+    const [, memeIdCapture = '', caption = ''] =
+      message.text.match(/^\s*(=[\w-]+)?\s*(.*)/) || [];
+    const memeId = requestQuery.memeId || memeIdCapture.replace(/^=/, '');
+    const presetId = requestQuery.presetId || process.env.MEMIFY_PRESET_ID;
 
-    if (!options.presetUrl) {
-      return;
-    }
-    try {
-      memifyPreset = await getPresetData(options.presetUrl);
-    } catch (error) {
-      throw new Error(`Failed to get preset data: ${error.message}`);
-    }
+    captionCache[message.user] = caption;
 
-    overlayTextCache[message.user] = options.overlayText;
-
-    // All set, get the image
-    if (options.preset && options.overlayText) {
-      await bot.say(
+    // Render meme
+    if (memeId) {
+      captionCache[message.user] = '';
+      return bot.say(
         createImageResponse(
-          getMemifyUrl(options.preset, options.presetUrl, options.overlayText),
-          options.overlayText,
-          options.overlayText,
+          getMemeRenderUrl({ memeId, caption }),
+          caption,
+          caption,
         ),
       );
-      // Clear cache
-      overlayTextCache[message.user] = '';
-      return;
     }
 
-    // Bits missing, show preset details
-    await bot.replyEphemeral(
-      message,
-      buildMemeSelection({
-        command: message.command,
-        preset: memifyPreset,
-        presetKey: requestQuery.preset,
-        overlayText: options.overlayText,
-      }),
+    // Show preset items
+    if (presetId) {
+      const cloudPreset = await getDocumentFromCloud('presets', presetId);
+      const cloudPresetMemes = await getAllDocumentsFromCloudByIds(
+        'memes',
+        cloudPreset.memes,
+      );
+      return bot.replyEphemeral(
+        message,
+        buildMemeSelection({
+          command: message.command,
+          preset: cloudPreset,
+          items: cloudPresetMemes,
+          caption,
+        }),
+      );
+    }
+
+    throw new Error(
+      '`presetId` is not set. Either use MEMIFY_PRESET_ID env var or pass inline as query param.',
     );
   });
 
-  controller.on('block_actions', async (bot, message) => {
+  controller.on('block_actions', (bot, message) => {
     const action = message.actions[0];
 
     if (action.block_id !== ACTION_BLOCK_ID) {
       return;
     }
 
-    const textOverlay = overlayTextCache[message.user];
+    const caption = captionCache[message.user];
 
-    if (!textOverlay) {
-      console.warn('> No `overlayText`');
+    if (!caption) {
+      console.warn('No `overlayText`');
       return;
     }
 
-    const user = message.incoming_message.channelData.user;
-    await bot.replyInteractive(
-      message,
-      `Hey ${user.name}, your meme '${
-        action.text.text
-      }' with text \`${textOverlay}\`:`,
-    );
-    await bot.say(
+    // Clear cache
+    captionCache[message.user] = '';
+    return bot.say(
       createImageResponse(
-        getMemifyUrl(action.action_id, MEMIFY_PRESET_URL, textOverlay),
-        textOverlay,
-        textOverlay,
+        getMemeRenderUrl({ memeId: action.action_id, caption }),
+        caption,
+        caption,
       ),
     );
-    // Clear cache
-    overlayTextCache[message.user] = '';
   });
 
-  controller.on('message_action', async (bot, action) => {
-    const { presetUrl, preset } = qs.parse(action.callback_id);
-    const textOverlay = action.message.text;
+  controller.on('message_action', (bot, action) => {
+    const { memeId } = qs.parse(action.callback_id);
+    const caption = action.message.text;
 
-    await bot.say(
+    return bot.say(
       createImageResponse(
-        getMemifyUrl(preset, presetUrl, textOverlay),
-        textOverlay,
-        textOverlay,
+        getMemeRenderUrl({ memeId, caption }),
+        caption,
+        caption,
       ),
     );
   });

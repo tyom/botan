@@ -11,10 +11,10 @@
   },
   "dependencies": {
     "axios": "0.18.0",
-    "botbuilder": "4.4.0",
     "botbuilder-adapter-slack": "1.0.2",
-    "btoa": "1.2.1",
+    "botkit": "4.0.2",
     "cryptr": "4.0.2",
+    "firebase": "6.1.0",
     "lodash": "^4.17.11",
     "node-duckduckgo": "2.0.2",
     "slack-block-kit": "0.9.3",

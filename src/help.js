@@ -65,12 +65,12 @@ module.exports = {
     context([text('e.g. `summarise https://www.bbc.co.uk/news/world-australia-48305001`', TEXT_FORMAT_MRKDWN)]),
 
     divider(),
-    section(text('*`/memify :preset [text]`*', TEXT_FORMAT_MRKDWN)),
+    section(text('*`/memify =memeId [text]`*', TEXT_FORMAT_MRKDWN)),
     section(
       text(
         'Slash command to place [text] caption on an image from preset. To get a list of images in preset run `/memify` or `/memify [text]',
       ),
     ),
-    context([text('e.g. `/memify :aliens I’m not alone`', TEXT_FORMAT_MRKDWN)]),
+    context([text('e.g. `/memify =V9ZgwxBuviSgF609tzQ1 I’m not alone`', TEXT_FORMAT_MRKDWN)]),
   ],
 };
