@@ -1,3 +1,12 @@
+/**
+ * Give a summary to a web article
+ * Use Aylien
+ * @example
+ * summarise https://www.bbc.co.uk/news/world-australia-48305001
+ * @alias
+ * summarize, summary, tldr
+ */
+
 const { truncate } = require('lodash');
 const unfluff = require('unfluff');
 const axios = require('axios');

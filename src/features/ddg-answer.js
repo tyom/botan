@@ -1,3 +1,12 @@
+/**
+ * DuckDuckGo Instant Answers
+ * Use DDG api to get short summaries for topics
+ * @example
+ * describe World Wide Web
+ * @alias
+ * ddg
+ */
+
 const { duckIt } = require('node-duckduckgo');
 const { isString } = require('lodash');
 const {

@@ -1,3 +1,11 @@
+/**
+ * Tell a joke from a few categories
+ * Categories: Any, Dark, Programming, Miscellaneous
+ * @example
+ * tell me a joke
+ * tell me a programming joke.
+ */
+
 const { upperFirst } = require('lodash');
 const axios = require('axios');
 const jokeApi = axios.create({

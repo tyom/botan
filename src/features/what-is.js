@@ -1,3 +1,11 @@
+/**
+ * Get a random definition for a term from Urban Dictionary
+ * @example
+ * what is slack?
+ * @alias
+ * what's (a)
+ */
+
 const { get, truncate } = require('lodash');
 const axios = require('axios');
 const {
@@ -73,7 +81,7 @@ module.exports = controller => {
     try {
       const { list } = await define(term);
       const exactMatches = list.filter(x => x.word.toLowerCase() === term.toLowerCase());
-      
+
       if (!exactMatches.length) {
         const { user } = await bot.api.users.info({ user: message.user });
         return bot.reply(message, `Haven’t a clue, ${user.name}.`);

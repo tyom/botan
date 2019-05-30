@@ -1,3 +1,9 @@
+/**
+ * Insult user
+ * @example
+ * insult Freddy
+ */
+
 const axios = require('axios');
 
 const insultApi = axios.create({

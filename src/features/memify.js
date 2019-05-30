@@ -1,4 +1,14 @@
-require('dotenv').config();
+/**
+ * Use mimify.tyom.dev to create an image with caption
+ * Use =memeId to pick an image, followed by caption text. = sign is identifier.
+ * If memeId is omitted, the caption text will be temporarily stored and the
+ * list of available images in preset will be shown with the ability to select
+ * one to place the text on.
+ * @example
+ * /memify Goes onto image
+ * /memify =R0m7W1A4q7P5oeoDZLr9 Goes onto image
+ */
+
 const qs = require('querystring');
 const {
   block,
