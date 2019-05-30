@@ -10,10 +10,12 @@ module.exports = {
         TEXT_FORMAT_MRKDWN,
       ),
     ),
+
     divider(),
     section(text('*`insult [name]`*\n', TEXT_FORMAT_MRKDWN)),
     section(text('Insult the user [name].')),
     context([text('e.g. `insult bob`', TEXT_FORMAT_MRKDWN)]),
+
     divider(),
     section(text('*`tell me a ([category]) joke`*', TEXT_FORMAT_MRKDWN)),
     section(
@@ -24,6 +26,7 @@ module.exports = {
     ),
     section(text('Tell a random joke by category.')),
     context([text('e.g. `tell me a programming joke`', TEXT_FORMAT_MRKDWN)]),
+
     divider(),
     section(
       text(
@@ -37,6 +40,7 @@ module.exports = {
       ),
     ),
     context([text('e.g. `what is bot?`', TEXT_FORMAT_MRKDWN)]),
+
     divider(),
     section(
       text(
@@ -72,5 +76,14 @@ module.exports = {
       ),
     ),
     context([text('e.g. `/memify =V9ZgwxBuviSgF609tzQ1 I’m not alone`', TEXT_FORMAT_MRKDWN)]),
+
+    divider(),
+    section(text('*`bash me ([term])`*', TEXT_FORMAT_MRKDWN)),
+    section(
+      text(
+        'Get a quote from bash.org. [term] is optional, without it a random quote is shown.',
+      ),
+    ),
+    context([text('e.g. `bash me vim', TEXT_FORMAT_MRKDWN)]),
   ],
 };
