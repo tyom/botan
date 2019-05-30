@@ -44,12 +44,6 @@ function buildBlockFromPresetItem(command, caption) {
           accessory: image(meme.image.src, meme.title),
         },
       ),
-      context([
-        text(
-          `Start with *${command}*, add *=memeId* followed by *caption*. If memeId is omitted but caption is given, the caption will be remembered and another interactive message pops up to pick the image for the caption.`,
-          TEXT_FORMAT_MRKDWN,
-        ),
-      ]),
     ];
   };
 }
@@ -76,6 +70,12 @@ function buildMemeSelection({
         ),
       ),
       ...images,
+      context([
+        text(
+          `Start with *${command}*, add *=memeId* followed by *caption*. If memeId is omitted but caption is given, the caption will be remembered and another interactive message pops up to pick the image for the caption.`,
+          TEXT_FORMAT_MRKDWN,
+        ),
+      ]),
     ]
       .concat(
         caption
