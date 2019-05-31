@@ -38,7 +38,7 @@ async function getRandomResult(cache = {}) {
 async function getSearchResult(cache = {}, term) {
   if (!Array.isArray(cache[term]) || !cache[term].length) {
     try {
-      cache[term] = await axios('http://bash.org/?random').then(res =>
+      cache[term] = await axios(`http://bash.org/?search=${term}&show=100`).then(res =>
         getQuotesOnPage(res.data),
       );
     } catch (error) {
