@@ -47,8 +47,8 @@ function constructResponse(defineObj, otherDefinitions = []) {
   const overflowOptions = otherDefinitions.map(d =>
     option(truncate(d.definition, { length: 50 }), d.defid.toString()),
   );
-
-  const menu = otherDefinitions.length
+  
+  const menu = overflowOptions.length > 1
     ? {
         blockId: 'ub-other-definitions',
         accessory: overflow('ub-definition', overflowOptions),
@@ -92,7 +92,7 @@ module.exports = controller => {
         .filter(d => d.defid !== randomResult.defid)
         .slice(0, 5);
       const result = list.find(x => x.word.toLowerCase() === term.toLowerCase())
-
+      
       await bot.reply(
         message,
         constructResponse(randomResult, otherDefinitions),
