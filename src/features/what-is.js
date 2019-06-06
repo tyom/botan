@@ -77,7 +77,13 @@ module.exports = controller => {
   const re = /^(what is|what’s)\s?a? (.+)\?$/i;
 
   controller.hears(re, ['message', 'direct_message'], async (bot, message) => {
-    const [, , term] = message.text.match(re);
+    const [, , term = ''] = message.text.match(re);
+    
+    // skip what appears to be a legitimate question
+    if (term.split(' ').length > 4) {
+      return;
+    }
+    
     try {
       const { list } = await define(term);
       const exactMatches = list.filter(x => x.word.toLowerCase() === term.toLowerCase());
