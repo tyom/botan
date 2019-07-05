@@ -42,16 +42,9 @@ module.exports = {
     context([text('e.g. `what is bot?`', TEXT_FORMAT_MRKDWN)]),
 
     divider(),
+    section(text('*`describe [term]`* or *`ddg [term]`*', TEXT_FORMAT_MRKDWN)),
     section(
-      text(
-        '*`describe [term]`* or *`ddg [term]`*',
-        TEXT_FORMAT_MRKDWN,
-      ),
-    ),
-    section(
-      text(
-        'Get a summary for [term] using DuckDuckGo’s Instant Answers.',
-      ),
+      text('Get a summary for [term] using DuckDuckGo’s Instant Answers.'),
     ),
     context([text('e.g. `describe mars planet`', TEXT_FORMAT_MRKDWN)]),
     divider(),
@@ -66,7 +59,12 @@ module.exports = {
         'Get a summary for web page URL. Wrap URL in tilde (`) to prevent unfurling',
       ),
     ),
-    context([text('e.g. `summarise https://www.bbc.co.uk/news/world-australia-48305001`', TEXT_FORMAT_MRKDWN)]),
+    context([
+      text(
+        'e.g. `summarise https://www.bbc.co.uk/news/world-australia-48305001`',
+        TEXT_FORMAT_MRKDWN,
+      ),
+    ]),
 
     divider(),
     section(text('*`/memify =memeId [text]`*', TEXT_FORMAT_MRKDWN)),
@@ -75,7 +73,12 @@ module.exports = {
         'Slash command to place [text] caption on an image from preset. To get a list of images in preset run `/memify` or `/memify [text]',
       ),
     ),
-    context([text('e.g. `/memify =V9ZgwxBuviSgF609tzQ1 I’m not alone`', TEXT_FORMAT_MRKDWN)]),
+    context([
+      text(
+        'e.g. `/memify =V9ZgwxBuviSgF609tzQ1 I’m not alone`',
+        TEXT_FORMAT_MRKDWN,
+      ),
+    ]),
 
     divider(),
     section(text('*`bash me ([term])`*', TEXT_FORMAT_MRKDWN)),
@@ -85,5 +88,15 @@ module.exports = {
       ),
     ),
     context([text('e.g. `bash me vim', TEXT_FORMAT_MRKDWN)]),
+
+    divider(),
+    section(text('*`rhyme me [genre] [scheme=couplet]`*', TEXT_FORMAT_MRKDWN)),
+    section(
+      text(
+        'Generate a rhyme based on genre and couplet settings\n`rhyme me help` for help.',
+        TEXT_FORMAT_MRKDWN,
+      ),
+    ),
+    context([text('e.g. `rhyme me rap alternate`', TEXT_FORMAT_MRKDWN)]),
   ],
 };
