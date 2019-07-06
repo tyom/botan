@@ -14,7 +14,7 @@ module.exports = {
     divider(),
     section(text('*`insult [name]`*\n', TEXT_FORMAT_MRKDWN)),
     section(text('Insult the user [name].')),
-    context([text('e.g. `insult bob`', TEXT_FORMAT_MRKDWN)]),
+    context([text('e.g. insult bob', TEXT_FORMAT_MRKDWN)]),
 
     divider(),
     section(text('*`tell me a ([category]) joke`*', TEXT_FORMAT_MRKDWN)),
@@ -25,7 +25,7 @@ module.exports = {
       ),
     ),
     section(text('Tell a random joke by category.')),
-    context([text('e.g. `tell me a programming joke`', TEXT_FORMAT_MRKDWN)]),
+    context([text('e.g. tell me a programming joke', TEXT_FORMAT_MRKDWN)]),
 
     divider(),
     section(
@@ -39,14 +39,14 @@ module.exports = {
         'Get a definition for a [term] from UrbanDictionary.com. For multiple definitions a random one is selected.',
       ),
     ),
-    context([text('e.g. `what is bot?`', TEXT_FORMAT_MRKDWN)]),
+    context([text('e.g. what is bot?', TEXT_FORMAT_MRKDWN)]),
 
     divider(),
     section(text('*`describe [term]`* or *`ddg [term]`*', TEXT_FORMAT_MRKDWN)),
     section(
       text('Get a summary for [term] using DuckDuckGo’s Instant Answers.'),
     ),
-    context([text('e.g. `describe mars planet`', TEXT_FORMAT_MRKDWN)]),
+    context([text('e.g. describe mars planet', TEXT_FORMAT_MRKDWN)]),
     divider(),
     section(
       text(
@@ -61,7 +61,7 @@ module.exports = {
     ),
     context([
       text(
-        'e.g. `summarise https://www.bbc.co.uk/news/world-australia-48305001`',
+        'e.g. summarise https://www.bbc.co.uk/news/world-australia-48305001',
         TEXT_FORMAT_MRKDWN,
       ),
     ]),
@@ -75,7 +75,7 @@ module.exports = {
     ),
     context([
       text(
-        'e.g. `/memify =V9ZgwxBuviSgF609tzQ1 I’m not alone`',
+        'e.g. /memify =V9ZgwxBuviSgF609tzQ1 I’m not alone',
         TEXT_FORMAT_MRKDWN,
       ),
     ]),
@@ -87,7 +87,7 @@ module.exports = {
         'Get a quote from bash.org. [term] is optional, without it a random quote is shown.',
       ),
     ),
-    context([text('e.g. `bash me vim', TEXT_FORMAT_MRKDWN)]),
+    context([text('e.g. bash me vim', TEXT_FORMAT_MRKDWN)]),
 
     divider(),
     section(text('*`rhyme me [genre] [scheme=couplet]`*', TEXT_FORMAT_MRKDWN)),
@@ -97,6 +97,15 @@ module.exports = {
         TEXT_FORMAT_MRKDWN,
       ),
     ),
-    context([text('e.g. `rhyme me rap alternate`', TEXT_FORMAT_MRKDWN)]),
+    context([text('e.g. rhyme me rap alternate', TEXT_FORMAT_MRKDWN)]),
+
+    divider(),
+    section(text('*`darwin me`*', TEXT_FORMAT_MRKDWN)),
+    section(
+      text(
+        'Get a random Darwin Awards story.',
+        TEXT_FORMAT_MRKDWN,
+      ),
+    ),
   ],
 };
