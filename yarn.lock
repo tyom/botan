@@ -784,14 +784,14 @@ boolbase@~1.0.0:
   resolved "https://registry.yarnpkg.com/boolbase/-/boolbase-1.0.0.tgz#68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"
   integrity sha1-aN/1++YMUes3cl6p4+0xDcwed24=
 
-botbuilder-adapter-slack@1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/botbuilder-adapter-slack/-/botbuilder-adapter-slack-1.0.2.tgz#e154f3e4aad60ffd0ed26625cfc879fa24c88d61"
-  integrity sha512-o3KwXcj9mo42Z/IJWoXZdTqmQb3hmMYPnUqzTinL6PqGZ5hPXOeXZIi5PpI+sOHWoNfyPES3Y1exKdtaccrHpg==
+botbuilder-adapter-slack@1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/botbuilder-adapter-slack/-/botbuilder-adapter-slack-1.0.3.tgz#83a36b7a8dbfda854ed0db170a4efa84a56ad31f"
+  integrity sha512-q3lKJL3XYIEPNX2NaCae1VhDzj2Ln6w6tVSwHt9IgjoN+5h9hzLqbXDNMsbO83Pu2/mg1PzpO+R71ME06TVefA==
   dependencies:
     "@slack/client" "^4.7.0"
     botbuilder "^4.4.0"
-    botkit "^4.0.1"
+    botkit "^4.0.2"
     debug "^4.1.0"
 
 botbuilder-core@^4.4.0:
@@ -847,27 +847,10 @@ botframework-schema@^4.4.0:
   resolved "https://registry.yarnpkg.com/botframework-schema/-/botframework-schema-4.4.0.tgz#83bc05221e50bb9f1d609ce52a8242becbecfb30"
   integrity sha512-3BWQEbArzHkw49BCdyNxqmSnLzkrL396Q0c+VcdabT3t75wV+dc4bwzSBuLfG0KW+fBjhSR4BXM8IQfnIZU0Vg==
 
-botkit@4.0.2:
+botkit@4.0.2, botkit@^4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/botkit/-/botkit-4.0.2.tgz#0c8b5cb09396cddc00be31dfe3b1331be76d2bd7"
   integrity sha512-lmmbBi/wDT7nNIOKgLp9w1GTSt65y0f3EcsqItb4veJRtPUvxwjQiBlytzPUHpaLNJOX18fMxSXrAYc2cIuIZw==
-  dependencies:
-    body-parser "^1.18.3"
-    botbuilder "^4.4.0"
-    botbuilder-dialogs "^4.4.0"
-    botframework-connector "^4.4.0"
-    debug "^4.1.0"
-    express "^4.16.4"
-    hbs "^4.0.1"
-    mustache "^3.0.1"
-    path "^0.12.7"
-    request "^2.88.0"
-    ware "^1.3.0"
-
-botkit@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/botkit/-/botkit-4.0.1.tgz#0975551e51c01b69ee6563dac8edbfd8ddb880bd"
-  integrity sha512-SM2Ga7mcSU3q/WP21xekGGq3t8fIIPtThab+n/uYNqi+zXwork+dmdnJQ1GPn2tK+nCzm60ZvpPFubq2jt4r1w==
   dependencies:
     body-parser "^1.18.3"
     botbuilder "^4.4.0"
@@ -1020,6 +1003,18 @@ check-error@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-1.0.2.tgz#574d312edd88bb5dd8912e9286dd6c0aed4aac82"
   integrity sha1-V00xLt2Iu13YkS6Sht1sCu1KrII=
+
+cheerio@1.0.0-rc.3:
+  version "1.0.0-rc.3"
+  resolved "https://registry.yarnpkg.com/cheerio/-/cheerio-1.0.0-rc.3.tgz#094636d425b2e9c0f4eb91a46c05630c9a1a8bf6"
+  integrity sha512-0td5ijfUPuubwLUu0OBoe98gZj8C/AA+RW3v67GPlGOrvxWjZmBXiBCRU+I8VEiNyJzjth40POfHiz2RB3gImA==
+  dependencies:
+    css-select "~1.2.0"
+    dom-serializer "~0.1.1"
+    entities "~1.1.1"
+    htmlparser2 "^3.9.1"
+    lodash "^4.15.0"
+    parse5 "^3.0.1"
 
 cheerio@~0.22.0:
   version "0.22.0"
@@ -1418,7 +1413,7 @@ doctrine@^3.0.0:
   dependencies:
     esutils "^2.0.2"
 
-dom-serializer@0, dom-serializer@~0.1.0:
+dom-serializer@0, dom-serializer@~0.1.0, dom-serializer@~0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/dom-serializer/-/dom-serializer-0.1.1.tgz#1ec4059e284babed36eec2941d4a970a189ce7c0"
   integrity sha512-l0IU0pPzLWSHBcieZbpOKgkIn3ts3vAh7ZuFyXNwJxJXk/c4Gwj9xaTJwIDVQCXawWD0qb3IzMGH5rglQaO0XA==
@@ -3050,7 +3045,7 @@ lodash.trimend@^4.5.1:
   resolved "https://registry.yarnpkg.com/lodash.trimend/-/lodash.trimend-4.5.1.tgz#12804437286b98cad8996b79414e11300114082f"
   integrity sha1-EoBENyhrmMrYmWt5QU4RMAEUCC8=
 
-lodash@^4.17.11, lodash@^4.17.5, lodash@~4.17.10:
+lodash@^4.15.0, lodash@^4.17.11, lodash@^4.17.5, lodash@~4.17.10:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
   integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
@@ -3653,6 +3648,13 @@ parse5@5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/parse5/-/parse5-5.1.0.tgz#c59341c9723f414c452975564c7c00a68d58acd2"
   integrity sha512-fxNG2sQjHvlVAYmzBZS9YlDp6PTSSDwa98vkD4QgVDDCAo84z5X1t5XyJQ62ImdLXx5NdIIfihey6xpum9/gRQ==
+
+parse5@^3.0.1:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/parse5/-/parse5-3.0.3.tgz#042f792ffdd36851551cf4e9e066b3874ab45b5c"
+  integrity sha512-rgO9Zg5LLLkfJF9E6CCmXlSE4UVceloys8JrFqCcHloC3usd/kJCyPDwH2SOlzix2j3xaP9sUX3e8+kvkuleAA==
+  dependencies:
+    "@types/node" "*"
 
 parseurl@~1.3.2:
   version "1.3.3"
