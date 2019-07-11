@@ -7,7 +7,7 @@ dependencies:
   firebase: 6.1.0
   jsdom: 15.1.1
   lodash: 4.17.11
-  node-duckduckgo: 2.0.2
+  node-duckduckgo: 2.0.5
   slack-block-kit: 0.9.3
   unfluff: 3.2.0
 devDependencies:
@@ -3263,12 +3263,12 @@ packages:
       node: '>= 6.0'
     resolution:
       integrity: sha512-b47OWj1qf/LqSQYnmokNWM8D88KvUl2y7jT0567NB3ZBAZFz2bWp2PC81Xn7u8F2/vJxzkzNZybnemeFa7AZ2w==
-  /node-duckduckgo/2.0.2:
+  /node-duckduckgo/2.0.5:
     dependencies:
       axios: 0.18.1
     dev: false
     resolution:
-      integrity: sha512-hPVmfdiYYHNmih4uYX3awM4l0BKZ12vDiBSBDF74mL4kziT0+B2jG0jETHr3lvGRhzmEJWlmpZEpkerjYJHmvA==
+      integrity: sha512-Chr+qQ0te9DUPbNK5GOiT+9gdFs/e6MwX6tOrYqrZMtmZE4EZ24EVJQcSSCxLy5NhSYC/+u8lgn1d8S7be2RMA==
   /node-fetch/1.7.3:
     dependencies:
       encoding: 0.1.12
@@ -5018,7 +5018,7 @@ specifiers:
   jsdom: 15.1.1
   localtunnel: 1.9.1
   lodash: ^4.17.11
-  node-duckduckgo: 2.0.2
+  node-duckduckgo: 2.0.5
   nodemon: 1.19.0
   now: 15.2.0
   prettier: 1.17.1
