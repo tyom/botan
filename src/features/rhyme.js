@@ -32,8 +32,13 @@ const RHYME_GENRES = {
 
 module.exports = controller => {
   const re = /^rhyme me(\s+?\w+)?(\s+\w+)?$/i;
+  let receivedMessageId;
 
   controller.hears(re, ['message', 'direct_message'], async (bot, message) => {
+    // avoid duplicate retries due to async delay
+    if (receivedMessageId === message.incoming_message.id) {
+      return;
+    }
     const [, genreMatch = '', schemeMatch = ''] = message.text.match(re);
     const genreKey = genreMatch.trim();
     const schemeKey = schemeMatch.trim();
@@ -56,6 +61,8 @@ module.exports = controller => {
     }
 
     if (!genreKeys.includes(genreKey)) {
+      receivedMessageId = message.incoming_message.id;
+      
       return bot.reply(
         message,
         `Specify genre. Available genres: ${genreKeys

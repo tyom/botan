@@ -3286,10 +3286,10 @@ nock@^10.0.3:
     qs "^6.5.1"
     semver "^5.5.0"
 
-node-duckduckgo@2.0.5:
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/node-duckduckgo/-/node-duckduckgo-2.0.5.tgz#c43bfed90a071c017f26b5d84af964823309af29"
-  integrity sha512-Chr+qQ0te9DUPbNK5GOiT+9gdFs/e6MwX6tOrYqrZMtmZE4EZ24EVJQcSSCxLy5NhSYC/+u8lgn1d8S7be2RMA==
+node-duckduckgo@2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/node-duckduckgo/-/node-duckduckgo-2.0.2.tgz#85717e4c2818ca23e6df33d74fe835ef786057b7"
+  integrity sha512-hPVmfdiYYHNmih4uYX3awM4l0BKZ12vDiBSBDF74mL4kziT0+B2jG0jETHr3lvGRhzmEJWlmpZEpkerjYJHmvA==
   dependencies:
     axios "^0.18.0"
 

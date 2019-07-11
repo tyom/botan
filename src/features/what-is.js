@@ -75,9 +75,15 @@ function getRandomItem(list) {
 
 module.exports = controller => {
   const re = /^(what is|what’s)\s?a? (.+)\?$/i;
+  let receivedMessageId;
 
   controller.hears(re, ['message', 'direct_message'], async (bot, message) => {
     const [, , term = ''] = message.text.match(re);
+    
+    // avoid duplicate retries due to async delay
+    if (receivedMessageId === message.incoming_message.id) {
+      return;
+    }
     
     // skip what appears to be a legitimate question
     if (term.split(' ').length > 4) {
@@ -99,6 +105,8 @@ module.exports = controller => {
         .slice(0, 5);
       const result = list.find(x => x.word.toLowerCase() === term.toLowerCase())
       
+      receivedMessageId = message.incoming_message.id;
+      
       await bot.reply(
         message,
         constructResponse(randomResult, otherDefinitions),
@@ -109,12 +117,20 @@ module.exports = controller => {
   });
 
   controller.on('block_actions', async (bot, message) => {
+    // avoid duplicate retries due to async delay
+    if (receivedMessageId === message.incoming_message.id) {
+      return;
+    }
+
     const action = message.actions[0];
     if (action.block_id !== 'ub-other-definitions') {
       return;
     }
     try {
       const definition = await getDefinitionById(action.selected_option.value);
+      
+      receivedMessageId = message.incoming_message.id;
+      
       return bot.reply(message, constructResponse(definition));
     } catch (error) {
       console.error(error);
