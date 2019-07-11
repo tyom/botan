@@ -118,12 +118,17 @@ function createImageResponse(url, altText, titleText = '') {
 module.exports = async controller => {
   const captionCache = {};
   let requestQuery = {};
+  let receivedMessageId;
 
   controller.http.on('request', req => {
     requestQuery = req.query;
   });
 
   controller.on('slash_command', async (bot, message) => {
+    // avoid duplicate retries due to async delay
+    if (receivedMessageId === message.incoming_message.id) {
+      return;
+    }
     const [, memeIdCapture = '', caption = ''] =
       message.text.match(/^\s*(=[\w-]+)?\s*(.*)/) || [];
     const memeId = requestQuery.memeId || memeIdCapture.replace(/^=/, '');
@@ -182,6 +187,8 @@ module.exports = async controller => {
 
     // Clear cache
     captionCache[message.user] = '';
+    receivedMessageId = message.incoming_message.id;
+    
     return bot.say(
       createImageResponse(
         getMemeRenderUrl({ memeId: action.action_id, caption }),

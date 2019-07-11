@@ -56,14 +56,21 @@ function createCache(store = {}) {
 
 module.exports = async controller => {
   const re = /^bash me\s?(\w+)?$/i;
+  let receivedMessageId;
 
   const cache = createCache();
 
   controller.hears(re, ['message', 'direct_message'], async (bot, message) => {
+    // avoid duplicate retries due to async delay
+    if (receivedMessageId === message.incoming_message.id) {
+      return;
+    }
     const [, term = ''] = message.text.match(re);
 
     if (term) {
       const result = await getSearchResult(cache, term);
+      receivedMessageId = message.incoming_message.id;
+      
       return bot.reply(message, result);
     }
 

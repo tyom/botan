@@ -19,11 +19,16 @@ const { section, divider, context, image } = block;
 
 module.exports = controller => {
   const re = /^(describe|ddg) (.*)$/i;
+  let receivedMessageId;
 
   controller.hears(
     re,
     ['message', 'direct_message', 'mention'],
     async (bot, message) => {
+      // avoid duplicate retries due to async delay
+      if (receivedMessageId === message.incoming_message.id) {
+        return;
+      }
       const [, , query] = message.text.match(re);
 
       try {
@@ -98,6 +103,8 @@ module.exports = controller => {
         if (infoboxData.length) {
           blocks.push(divider(), context(infoboxData));
         }
+        
+        receivedMessageId = message.incoming_message.id;
 
         await bot.say({ blocks });
       } catch (error) {
