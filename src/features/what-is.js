@@ -74,11 +74,11 @@ function getRandomItem(list) {
 }
 
 module.exports = controller => {
-  const re = /^(what is|what’s)\s?a? (.+)\?$/i;
+  const re = /^(what is|what’s)\s?a? (.+)\?(!?)$/i;
   let receivedMessageId;
 
   controller.hears(re, ['message', 'direct_message'], async (bot, message) => {
-    const [, , term = ''] = message.text.match(re);
+    const [, , term = '', bang] = message.text.match(re);
     
     // avoid duplicate retries due to async delay
     if (receivedMessageId === message.incoming_message.id) {
@@ -109,7 +109,7 @@ module.exports = controller => {
       
       await bot.reply(
         message,
-        constructResponse(randomResult, otherDefinitions),
+        bang ? constructResponse(randomResult, otherDefinitions) : randomResult.definition,
       );
     } catch (error) {
       console.error(error);
