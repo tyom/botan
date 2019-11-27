@@ -19,13 +19,8 @@ const aylienApi = axios.create({
 module.exports = controller => {
   const re = /^(summarise|summarize|summary|tldr) `?<(.+)>`?$/i;
   let respondedForTitle;
-  let receivedMessageId;
 
   controller.hears(re, ['message', 'direct_message'], async (bot, message) => {
-    // avoid duplicate retries due to async delay
-    if (receivedMessageId === message.incoming_message.id) {
-      return;
-    }
     const [, , url] = message.text.match(re);
     if (!url) {
       return;
@@ -50,12 +45,9 @@ module.exports = controller => {
           text: truncatedText,
         },
       });
-      
-      receivedMessageId = message.incoming_message.id;
-      
+
       if (respondedForTitle !== title) {
         await bot.reply(message, summary.data.sentences.join(' '));
-        respondedForTitle = title;
       }
     } catch (error) {
       console.error(error);

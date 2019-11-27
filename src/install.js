@@ -6,6 +6,10 @@ if (process.env.JSONSTORE_URL || process.env.JSONSTORE_ENCRYPT_KEY) {
 }
 
 function install(controller) {
+  if (process.env.SLACK_BOT_TOKEN) {
+    console.log('✓ Using as single instance with SLACK_BOT_TOKEN.');
+    return;
+  }
   if (!setState) {
     console.log(`
       To install bot token and bot user ID need to be stored.

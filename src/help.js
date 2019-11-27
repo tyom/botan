@@ -6,21 +6,17 @@ module.exports = {
   blocks: [
     section(
       text(
-        'I understand certain commands that should be sent as discrete messages:',
+        'I understand the following commands:',
         TEXT_FORMAT_MRKDWN,
       ),
     ),
-
-    divider(),
-    section(text('*`insult [name]`*\n', TEXT_FORMAT_MRKDWN)),
-    section(text('Insult the user [name].')),
-    context([text('e.g. insult bob', TEXT_FORMAT_MRKDWN)]),
+    context([text('Parenthesis () means options, brackets [] means input text.', TEXT_FORMAT_MRKDWN)]),
 
     divider(),
     section(text('*`tell me a ([category]) joke`*', TEXT_FORMAT_MRKDWN)),
     section(
       text(
-        '[category] can be one of `any`, `programming`, `dark` or `miscellaneous`. If omitted `any` is picked. For anything not matching the list `miscellaneous` is picked.',
+        '[category] - one of `any`, `programming`, `dark` or `miscellaneous`. If omitted `any` is picked. For anything not matching the list `miscellaneous` is picked.',
         TEXT_FORMAT_MRKDWN,
       ),
     ),
@@ -101,11 +97,6 @@ module.exports = {
 
     divider(),
     section(text('*`darwin me`*', TEXT_FORMAT_MRKDWN)),
-    section(
-      text(
-        'Get a random Darwin Awards story.',
-        TEXT_FORMAT_MRKDWN,
-      ),
-    ),
+    section(text('Get a random Darwin Awards story.', TEXT_FORMAT_MRKDWN)),
   ],
 };

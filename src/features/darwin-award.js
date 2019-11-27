@@ -47,7 +47,9 @@ async function getDarwinAwardsStory(url) {
 
   $('table').remove();
 
-  const story = $.text().replace(/([\n]{3,}\s*)/g, '\n\n').trim();
+  const story = $.text()
+    .replace(/([\n]{3,}\s*)/g, '\n\n')
+    .trim();
   const { title, subtitle } = getTitle($h2);
 
   return {
@@ -60,24 +62,13 @@ async function getDarwinAwardsStory(url) {
 
 module.exports = controller => {
   const re = /^darwin me$/i;
-  let receivedMessageId;
 
   controller.hears(re, ['message', 'direct_message'], async (bot, message) => {
-    // avoid duplicate retries due to async delay
-    if (receivedMessageId === message.incoming_message.id) {
-      return;
-    }
     try {
-      receivedMessageId = message.incoming_message.id;
-      const { title, subtitle, story, url } = await getDarwinAwardsStory(
+      const { title, subtitle, story } = await getDarwinAwardsStory(
         RANDOM_ARTICLE_URL,
       );
-      await bot.say({
-        blocks: [
-          section(text(`*<${url}|${title}>*\n${subtitle}`, TEXT_FORMAT_MRKDWN)),
-          section(text(story)),
-        ],
-      });
+      await bot.reply(message, `${title}\n\n${subtitle}\n\n${story}`);
     } catch (error) {
       console.error(error.message);
     }

@@ -47,7 +47,7 @@ function constructResponse(defineObj, otherDefinitions = []) {
   const overflowOptions = otherDefinitions.map(d =>
     option(truncate(d.definition, { length: 50 }), d.defid.toString()),
   );
-  
+
   const menu = overflowOptions.length > 1
     ? {
         blockId: 'ub-other-definitions',
@@ -79,17 +79,12 @@ module.exports = controller => {
 
   controller.hears(re, ['message', 'direct_message'], async (bot, message) => {
     const [, , term = '', bang] = message.text.match(re);
-    
-    // avoid duplicate retries due to async delay
-    if (receivedMessageId === message.incoming_message.id) {
-      return;
-    }
-    
+
     // skip what appears to be a legitimate question
     if (term.split(' ').length > 4) {
       return;
     }
-    
+
     try {
       const { list } = await define(term);
       const exactMatches = list.filter(x => x.word.toLowerCase() === term.toLowerCase());
@@ -103,10 +98,7 @@ module.exports = controller => {
       const otherDefinitions = exactMatches
         .filter(d => d.defid !== randomResult.defid)
         .slice(0, 5);
-      const result = list.find(x => x.word.toLowerCase() === term.toLowerCase())
-      
-      receivedMessageId = message.incoming_message.id;
-      
+
       await bot.reply(
         message,
         bang ? constructResponse(randomResult, otherDefinitions) : randomResult.definition,
@@ -128,10 +120,8 @@ module.exports = controller => {
     }
     try {
       const definition = await getDefinitionById(action.selected_option.value);
-      
-      receivedMessageId = message.incoming_message.id;
-      
-      return bot.reply(message, constructResponse(definition));
+
+      await bot.reply(message, constructResponse(definition));
     } catch (error) {
       console.error(error);
     }

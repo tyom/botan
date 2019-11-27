@@ -14,13 +14,8 @@ const jokeApi = axios.create({
 
 module.exports = controller => {
   const re = /^tell me a(\s+\w+)?\s+joke\.?$/i;
-  let receivedMessageId;
 
   controller.hears(re, ['message', 'direct_message'], async (bot, message) => {
-    // avoid duplicate retries due to async delay
-    if (receivedMessageId === message.incoming_message.id) {
-      return;
-    }
     const [, category = 'any'] = message.text.match(re);
     const jokeCategory = ['any', 'dark', 'programming'].includes(
       category.trim().toLowerCase(),
@@ -31,8 +26,7 @@ module.exports = controller => {
     try {
       const { data } = await jokeApi.get(jokeCategory);
       const { type, joke, setup, delivery } = data;
-      receivedMessageId = message.incoming_message.id;
-      
+
       if (type === 'twopart') {
         await bot.reply(message, `*${setup}*\n${delivery}`);
       } else {

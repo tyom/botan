@@ -118,17 +118,12 @@ function createImageResponse(url, altText, titleText = '') {
 module.exports = async controller => {
   const captionCache = {};
   let requestQuery = {};
-  let receivedMessageId;
 
   controller.http.on('request', req => {
     requestQuery = req.query;
   });
 
   controller.on('slash_command', async (bot, message) => {
-    // avoid duplicate retries due to async delay
-    if (receivedMessageId === message.incoming_message.id) {
-      return;
-    }
     const [, memeIdCapture = '', caption = ''] =
       message.text.match(/^\s*(=[\w-]+)?\s*(.*)/) || [];
     const memeId = requestQuery.memeId || memeIdCapture.replace(/^=/, '');
@@ -139,13 +134,15 @@ module.exports = async controller => {
     // Render meme
     if (memeId) {
       captionCache[message.user] = '';
-      return bot.say(
+      await bot.reply(
+        message,
         createImageResponse(
           getMemeRenderUrl({ memeId, caption }),
           caption,
           caption,
         ),
       );
+      return;
     }
 
     // Show preset items
@@ -155,7 +152,7 @@ module.exports = async controller => {
         'memes',
         cloudPreset.memes,
       );
-      return bot.replyEphemeral(
+      await bot.replyEphemeral(
         message,
         buildMemeSelection({
           command: message.command,
@@ -164,6 +161,7 @@ module.exports = async controller => {
           caption,
         }),
       );
+      return;
     }
 
     throw new Error(
@@ -171,7 +169,7 @@ module.exports = async controller => {
     );
   });
 
-  controller.on('block_actions', (bot, message) => {
+  controller.on('block_actions', async (bot, message) => {
     const action = message.actions[0];
 
     if (action.block_id !== ACTION_BLOCK_ID) {
@@ -187,9 +185,8 @@ module.exports = async controller => {
 
     // Clear cache
     captionCache[message.user] = '';
-    receivedMessageId = message.incoming_message.id;
-    
-    return bot.say(
+
+    await bot.say(
       createImageResponse(
         getMemeRenderUrl({ memeId: action.action_id, caption }),
         caption,
@@ -198,11 +195,11 @@ module.exports = async controller => {
     );
   });
 
-  controller.on('message_action', (bot, action) => {
+  controller.on('message_action', async (bot, action) => {
     const { memeId } = qs.parse(action.callback_id);
     const caption = action.message.text;
 
-    return bot.say(
+    await bot.say(
       createImageResponse(
         getMemeRenderUrl({ memeId, caption }),
         caption,

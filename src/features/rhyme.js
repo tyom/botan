@@ -32,13 +32,8 @@ const RHYME_GENRES = {
 
 module.exports = controller => {
   const re = /^rhyme me(\s+?\w+)?(\s+\w+)?$/i;
-  let receivedMessageId;
 
   controller.hears(re, ['message', 'direct_message'], async (bot, message) => {
-    // avoid duplicate retries due to async delay
-    if (receivedMessageId === message.incoming_message.id) {
-      return;
-    }
     const [, genreMatch = '', schemeMatch = ''] = message.text.match(re);
     const genreKey = genreMatch.trim();
     const schemeKey = schemeMatch.trim();
@@ -48,32 +43,29 @@ module.exports = controller => {
     const schemeValue = schemeKeys.includes(schemeKey)
       ? schemeKey
       : schemeKeys[0];
-    
+
     if (genreKey === 'help') {
-      return bot.reply(
-        message,
+      await bot.say(
         `\`rhyme me [genre] [scheme=couplet]\`\nGenres: ${genreKeys
           .map(x => `\`${x}\``)
           .join(', ')}.\nSchemes: ${schemeKeys
           .map(x => `\`${x}\``)
           .join(', ')}.`,
       );
+      return;
     }
 
     if (!genreKeys.includes(genreKey)) {
-      receivedMessageId = message.incoming_message.id;
-      
-      return bot.reply(
-        message,
+      await bot.say(
         `Specify genre. Available genres: ${genreKeys
           .map(x => `\`${x}\``)
           .join(', ')}.`,
       );
+      return;
     }
 
     try {
       const requestData = `action=rhyme_last&scheme=${schemeValue}&genre=${RHYME_GENRES[genreKey]}`;
-      console.log(requestData);
       const { data } = await axios({
         url: 'https://www.rhymebuster.com/wp-admin/admin-ajax.php',
         method: 'post',
@@ -83,6 +75,7 @@ module.exports = controller => {
         },
       });
       const lines = data.map(x => x.line);
+      await bot.changeContext(message.reference);
       await bot.reply(message, lines.join('\n'));
     } catch (error) {
       console.error(error);

@@ -4,8 +4,8 @@
   "main": "src/index.js",
   "license": "MIT",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "node -r dotenv-flow/config src/index.js",
+    "dev": "nodemon -r dotenv-flow/config src/index.js",
     "tunnel": "ngrok http 3333 -subdomain=botan",
     "lint": "eslint src ."
   },

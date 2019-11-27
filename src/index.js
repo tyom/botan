@@ -1,5 +1,3 @@
-require('dotenv-flow').config();
-
 const { Botkit } = require('botkit');
 const {
   SlackAdapter,
@@ -7,7 +5,7 @@ const {
   SlackEventMiddleware,
 } = require('botbuilder-adapter-slack');
 const { install, getTokenForTeam, getBotUserByTeam } = require('./install');
-const debug = require('./debug');
+const { logIngest } = require('./debug');
 const help = require('./help');
 
 const {
@@ -48,7 +46,7 @@ controller.ready(() => {
   controller.hears(
     /^help$/,
     ['direct_mention', 'direct_message'],
-    async bot => {
+    async (bot) => {
       await bot.say(help);
     },
   );
@@ -57,5 +55,5 @@ controller.ready(() => {
 install(controller);
 
 if (DEBUG) {
-  debug.logIngest(controller);
+  logIngest(controller);
 }

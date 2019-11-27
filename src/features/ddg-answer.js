@@ -9,26 +9,17 @@
 
 const { duckIt } = require('node-duckduckgo');
 const { isString } = require('lodash');
-const {
-  block,
-  object,
-  TEXT_FORMAT_MRKDWN,
-} = require('slack-block-kit');
+const { block, object, TEXT_FORMAT_MRKDWN } = require('slack-block-kit');
 const { text } = object;
 const { section, divider, context, image } = block;
 
 module.exports = controller => {
   const re = /^(describe|ddg) (.*)$/i;
-  let receivedMessageId;
 
   controller.hears(
     re,
     ['message', 'direct_message', 'mention'],
     async (bot, message) => {
-      // avoid duplicate retries due to async delay
-      if (receivedMessageId === message.incoming_message.id) {
-        return;
-      }
       const [, , query] = message.text.match(re);
 
       try {
@@ -66,7 +57,7 @@ module.exports = controller => {
               ],
             });
           }
-          return bot.say(`I’ve nothing on *${query}*.`);
+          await bot.reply(message, `I’ve nothing on *${query}*.`);
         }
         const resultsData = Results.map(({ FirstURL, Text }) =>
           text(`<${FirstURL}|${Text}>`, TEXT_FORMAT_MRKDWN),
@@ -103,10 +94,8 @@ module.exports = controller => {
         if (infoboxData.length) {
           blocks.push(divider(), context(infoboxData));
         }
-        
-        receivedMessageId = message.incoming_message.id;
 
-        await bot.say({ blocks });
+        await bot.reply(message, { blocks });
       } catch (error) {
         console.error(error);
       }
