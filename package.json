@@ -6,29 +6,27 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "tunnel": "lt -p 3333 -s botan --print-requests",
+    "tunnel": "ngrok http 3333 -subdomain=botan",
     "lint": "eslint src ."
   },
   "dependencies": {
     "axios": "0.19.0",
-    "botbuilder-adapter-slack": "1.0.3",
-    "botkit": "4.0.2",
+    "botbuilder-adapter-slack": "1.0.7",
+    "botkit": "4.6.1",
     "cheerio": "1.0.0-rc.3",
-    "cryptr": "4.0.2",
-    "firebase": "6.1.0",
-    "jsdom": "15.1.1",
-    "lodash": "^4.17.11",
-    "node-duckduckgo": "2.0.5",
-    "slack-block-kit": "0.9.3",
+    "cryptr": "6.0.1",
+    "firebase": "7.5.0",
+    "jsdom": "15.2.1",
+    "lodash": "^4.17.15",
+    "node-duckduckgo": "2.0.8",
+    "slack-block-kit": "0.9.7",
     "unfluff": "3.2.0"
   },
   "devDependencies": {
-    "dotenv-flow": "0.4.0",
-    "eslint": "^5.16.0",
-    "eslint-config-tyom": "2.4.0",
-    "localtunnel": "1.9.1",
-    "nodemon": "1.19.0",
-    "now": "15.2.0",
-    "prettier": "1.17.1"
+    "dotenv-flow": "3.1.0",
+    "eslint": "^6.7.1",
+    "eslint-config-tyom": "2.5.1",
+    "nodemon": "2.0.1",
+    "prettier": "1.19.1"
   }
 }
