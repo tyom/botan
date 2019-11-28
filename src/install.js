@@ -10,22 +10,31 @@ function install(controller) {
     console.log('✓ Using as single instance with SLACK_BOT_TOKEN.');
     return;
   }
-  if (!setState) {
-    console.log(`
-      To install bot token and bot user ID need to be stored.
-      This is done using jsonstore.io service. The data is encrypted
-      using the key set in environment variable.
-    `);
-    return;
+  if (process.env.SLACK_CLIENT_ID && process.env.SLACK_CLIENT_SECRET) {
+    console.log(
+      '✓ Using as distribution with SLACK_CLIENT_ID and SLACK_CLIENT_SECRET.',
+    );
+
+    if (!getState) {
+      console.log(`
+        To install bot token and bot user ID need to be stored.
+        This is done using jsonstore.io service. The data is encrypted
+        using the key set in environment variable.
+      `);
+    }
   }
 
   controller.webserver.get('/install', (req, res) => {
+    console.log('Getting install link...');
     res.redirect(controller.adapter.getInstallLink());
   });
 
   controller.webserver.get('/install/auth', async (req, res) => {
+    console.log('Authenticating...');
     try {
-      const results = await controller.adapter.validateOauthCode(req.query.code);
+      const results = await controller.adapter.validateOauthCode(
+        req.query.code,
+      );
       console.log('OAUTH DETAILS:', results);
 
       await setState(results.team_id, {
