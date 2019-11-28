@@ -3,13 +3,13 @@ const Cryptr = require('cryptr');
 
 if (!process.env.JSONSTORE_URL) {
   console.log(
-    '`JSONSTORE_URL` env var must be set to store the application state.'
+    '`JSONSTORE_URL` env var must be set to store the application state.',
   );
   process.exit(1);
 }
 if (!process.env.JSONSTORE_ENCRYPT_KEY) {
   console.log(
-    '`JSONSTORE_ENCRYPT_KEY` env var must be set to encrypt the state data.'
+    '`JSONSTORE_ENCRYPT_KEY` env var must be set to encrypt the state data.',
   );
   process.exit(1);
 }
@@ -30,7 +30,7 @@ async function getState(key) {
     const { encrypted } = data.result;
     return JSON.parse(cryptr.decrypt(encrypted));
   } catch (error) {
-    console.log('Failed to get app state.');
+    console.log('✘ getState:', error);
   }
 }
 
