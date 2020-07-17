@@ -17,7 +17,7 @@
     "cryptr": "6.0.1",
     "firebase": "7.5.0",
     "jsdom": "15.2.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "node-duckduckgo": "2.0.8",
     "slack-block-kit": "0.9.7",
     "unfluff": "3.2.0"
