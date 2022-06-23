@@ -16,7 +16,7 @@
     "cheerio": "1.0.0-rc.3",
     "cryptr": "6.0.1",
     "firebase": "7.5.0",
-    "jsdom": "15.2.1",
+    "jsdom": "16.5.0",
     "lodash": "^4.17.15",
     "node-duckduckgo": "2.0.8",
     "slack-block-kit": "0.9.7",
